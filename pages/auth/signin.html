@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up | Devryon School ERP</title>
+  <title>Sign In | Devryon School ERP</title>
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="../css/signup.css">
+  <link rel="stylesheet" href="../../css/auth/signin.css">
 </head>
 <body>
 
@@ -49,20 +49,20 @@
 
       <!-- Header & Brand Logo -->
       <header class="brand-header">
-        <a href="../index.html" class="logo-container" title="Devryon Edtech Solution" aria-label="Devryon home">
-          <img src="../images/school-logo.png" alt="Devryon edtech solution" class="logo-img">
+        <a href="signin.html" class="logo-container" title="Devryon Edtech Solution" aria-label="Devryon home">
+          <img src="../../assets/images/branding/school-logo.png" alt="Devryon edtech solution" class="logo-img">
         </a>
       </header>
 
-      <!-- Registration Form Body -->
+      <!-- Sign In Form Body -->
       <div class="signup-content">
 
         <div class="form-header">
-          <h1 class="form-title">Create Account</h1>
-          <p class="form-subtitle">Register to get started with Devryon ERP</p>
+          <h1 class="form-title">Welcome Back</h1>
+          <p class="form-subtitle">Sign in to continue to Devryon ERP</p>
         </div>
 
-        <form id="signupForm" class="signup-form" novalidate>
+        <form id="loginForm" class="signup-form" novalidate>
 
           <!-- Username -->
           <div class="form-group">
@@ -74,7 +74,7 @@
                   <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
                 </svg>
               </span>
-              <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username" autocomplete="username" required>
+              <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" autocomplete="username" required>
             </div>
             <span class="error-text" id="usernameError"></span>
           </div>
@@ -89,8 +89,8 @@
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
               </span>
-              <input type="password" id="password" name="password" class="form-input has-right-icon" placeholder="Create a password" autocomplete="new-password" required>
-              <button type="button" id="togglePassword" class="password-toggle-btn" aria-label="Toggle password visibility">
+              <input type="password" id="password" name="password" class="form-input has-right-icon" placeholder="Enter your password" autocomplete="current-password" required>
+              <button type="button" id="togglePassword" class="password-toggle-btn" aria-label="Show password">
                 <svg viewBox="0 0 24 24">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -100,24 +100,11 @@
             <span class="error-text" id="passwordError"></span>
           </div>
 
-          <!-- Terms & Conditions Checkbox -->
-          <div class="form-group terms-group">
-            <label class="checkbox-container">
-              <input type="checkbox" id="terms" name="terms" required>
-              <span>I agree to the <a href="#" class="gold-accent-link">Terms &amp; Conditions</a></span>
-            </label>
-            <span class="error-text" id="termsError"></span>
-          </div>
-
-          <!-- Create Account Button -->
           <button type="submit" class="submit-btn">
-            Create Account <span class="btn-arrow">&rarr;</span>
+            Sign In <span class="btn-arrow">&rarr;</span>
           </button>
 
-          <!-- Login Redirect Link -->
-          <p class="login-redirect">
-            Already have an account? <a href="../index.html" class="gold-accent-link">Sign In</a>
-          </p>
+          <p class="login-redirect">Admin access only. Sign in to continue to the dashboard.</p>
 
         </form>
       </div>
@@ -128,7 +115,7 @@
           <svg viewBox="0 0 24 24">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
-          <span>Secure registration powered by Devryon</span>
+          <span>Secure access powered by Devryon</span>
         </div>
         <p class="copyright-text">&copy; 2026 Devryon School ERP. All rights reserved.</p>
       </footer>
@@ -247,6 +234,7 @@
   </div>
 
   <!-- JavaScript -->
-  <script src="../js/signup.js"></script>
-</body>
+  <script src="../../js/common/auth-utils.js"></script>
+  <script src="../../js/auth/signin.js"></script>
+  </body>
 </html>
