@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Admission Enquiry</title>
+
+    <!-- Google Font -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <link rel="stylesheet" href="../css/dashboard.css" />
+
+    <link rel="stylesheet" href="../css/table.css" />
+
+    <link rel="stylesheet" href="../css/forms.css" />
+
+    <link rel="stylesheet" href="../css/modal.css" />
+  </head>
+
+  <body>
+    <!-- =====================================================
+     DASHBOARD
+====================================================== -->
+
+    <div class="dashboard">
+      <!-- =====================================================
+     HEADER
+====================================================== -->
+
+      <header class="header">
+        <div class="header-left">
+          <img src="../images/logo.png" class="logo" alt="Logo" />
+
+          <h3>School ERP</h3>
+        </div>
+
+        <div class="header-center">
+          <input type="text" class="search-box" placeholder="Search..." />
+        </div>
+
+        <div class="header-right">
+          <select class="language">
+            <option>English</option>
+
+            <option>Hindi</option>
+          </select>
+
+          <button class="icon-btn calendar-btn">📅</button>
+
+          <button class="icon-btn notification-btn">🔔</button>
+
+          <div class="profile">
+            <img src="../images/profile.png" alt="Profile" />
+
+            <span> Admin </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- =====================================================
+     BODY
+====================================================== -->
+
+      <div class="dashboard-body">
+        <!-- =====================================================
+     SIDEBAR
+====================================================== -->
+
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <img src="../images/logo.png" alt="" />
+
+            <h2>School ERP</h2>
+          </div>
+
+          <nav class="sidebar-menu">
+            <ul>
+              <li>
+                <a href="../dashboard.html"> Dashboard </a>
+              </li>
+
+              <li class="menu-title">Front Office</li>
+
+              <li class="active">
+                <a class="submenu" href="#"> Admission Enquiry </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="visitor.html"> Visitor Book </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="phone-log.html"> Phone Call Log </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="postal-dispatch.html">
+                  Postal Dispatch
+                </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="postal-receive.html">
+                  Postal Receive
+                </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="complaint.html"> Complaint </a>
+              </li>
+
+              <li class="menu-title">Setup</li>
+
+              <li>
+                <a class="submenu" href="purpose.html"> Purpose </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="source.html"> Source </a>
+              </li>
+
+              <li>
+                <a class="submenu" href="reference.html"> Reference </a>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- =====================================================
+     CONTENT
+====================================================== -->
+
+        <main class="content">
+          <!-- ==========================================
+     PAGE HEADER
+========================================== -->
+
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Admission Enquiry</h2>
+
+              <div class="breadcrumb">
+                Dashboard / Front Office / Admission Enquiry
+              </div>
+            </div>
+
+            <button class="btn" id="openAddModal">+ Add Enquiry</button>
+          </div>
+
+          <!-- ==========================================
+     ACTION BAR
+========================================== -->
+
+          <div class="action-bar">
+            <div class="search-wrapper">
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search Enquiry"
+              />
+            </div>
+
+            <div class="filter-wrapper">
+              <select class="form-control">
+                <option>All Status</option>
+
+                <option>Active</option>
+
+                <option>Pending</option>
+
+                <option>Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ==========================================
+     TABLE STARTS HERE
+========================================== -->
+
+          <div class="table-card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+
+                  <th>Name</th>
+
+                  <th>Phone</th>
+
+                  <th>Purpose</th>
+
+                  <th>Date</th>
+
+                  <th>Status</th>
+
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody><tr>
+
+    <td>1001</td>
+
+    <td>Rahul Sharma</td>
+
+    <td>9876543210</td>
+
+    <td>Admission</td>
+
+    <td>02-08-2026</td>
+
+    <td>
+
+        <span class="status status-active">
+
+            Active
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <div class="action-buttons">
+
+            <button
+            class="action-btn view-btn">
+
+                👁
+
+            </button>
+
+            <button
+            class="action-btn edit-btn">
+
+                ✏
+
+            </button>
+
+            <button
+            class="action-btn delete-btn">
+
+                🗑
+
+            </button>
+
+        </div>
+
+    </td>
+
+</tr>
+
+<tr>
+
+    <td>1002</td>
+
+    <td>Priya Patel</td>
+
+    <td>9988776655</td>
+
+    <td>Scholarship</td>
+
+    <td>01-08-2026</td>
+
+    <td>
+
+        <span class="status status-pending">
+
+            Pending
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <div class="action-buttons">
+
+            <button class="action-btn view-btn">
+
+                👁
+
+            </button>
+
+            <button class="action-btn edit-btn">
+
+                ✏
+
+            </button>
+
+            <button class="action-btn delete-btn">
+
+                🗑
+
+            </button>
+
+        </div>
+
+    </td>
+
+</tr>
+
+<tr>
+
+    <td>1003</td>
+
+    <td>Aman Verma</td>
+
+    <td>9874563210</td>
+
+    <td>Fee Inquiry</td>
+
+    <td>30-07-2026</td>
+
+    <td>
+
+        <span class="status status-active">
+
+            Active
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <div class="action-buttons">
+
+            <button class="action-btn view-btn">
+
+                👁
+
+            </button>
+
+            <button class="action-btn edit-btn">
+
+                ✏
+
+            </button>
+
+            <button class="action-btn delete-btn">
+
+                🗑
+
+            </button>
+
+        </div>
+
+    </td>
+
+</tr>
+
+<tr>
+
+    <td>1004</td>
+
+    <td>Sneha Joshi</td>
+
+    <td>9865321478</td>
+
+    <td>Hostel</td>
+
+    <td>28-07-2026</td>
+
+    <td>
+
+        <span class="status status-inactive">
+
+            Closed
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <div class="action-buttons">
+
+            <button class="action-btn view-btn">
+
+                👁
+
+            </button>
+
+            <button class="action-btn edit-btn">
+
+                ✏
+
+            </button>
+
+            <button class="action-btn delete-btn">
+
+                🗑
+
+            </button>
+
+        </div>
+
+    </td>
+
+</tr>
+
+<tr>
+
+    <td>1005</td>
+
+    <td>Riya Singh</td>
+
+    <td>9898989898</td>
+
+    <td>Transport</td>
+
+    <td>26-07-2026</td>
+
+    <td>
+
+        <span class="status status-active">
+
+            Active
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <div class="action-buttons">
+
+            <button class="action-btn view-btn">
+
+                👁
+
+            </button>
+
+            <button class="action-btn edit-btn">
+
+                ✏
+
+            </button>
+
+            <button class="action-btn delete-btn">
+
+                🗑
+
+            </button>
+
+        </div>
+
+    </td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div class="pagination">
+
+<button class="page-btn active">
+
+1
+
+</button>
+
+<button class="page-btn">
+
+2
+
+</button>
+
+<button class="page-btn">
+
+3
+
+</button>
+
+<button class="page-btn">
+
+>
+
+</button>
+
+</div>
+
+</div>
+<!-- ==========================================
+     ADD ENQUIRY MODAL
+========================================== -->
+
+<div
+class="modal"
+id="addModal">
+
+<div class="modal-content">
+
+<div class="modal-header">
+
+<h3>
+
+Add Admission Enquiry
+
+</h3>
+
+<button
+class="close-btn">
+
+×
+
+</button>
+
+</div>
+
+<div class="modal-body">
+
+<form id="admissionForm">
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>Student Name</label>
+
+<input
+type="text"
+class="form-control"
+placeholder="Enter Student Name">
+
+</div>
+
+<div class="form-group">
+
+<label>Phone Number</label>
+
+<input
+type="tel"
+class="form-control"
+placeholder="Enter Phone Number">
+
+</div>
+
+<div class="form-group">
+
+<label>Email Address</label>
+
+<input
+type="email"
+class="form-control"
+placeholder="Enter Email">
+
+</div>
+
+<div class="form-group">
+
+<label>Purpose</label>
+
+<select class="form-control">
+
+<option>Select Purpose</option>
+
+<option>Admission</option>
+
+<option>Scholarship</option>
+
+<option>Transport</option>
+
+<option>Hostel</option>
+
+<option>General Inquiry</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Source</label>
+
+<select class="form-control">
+
+<option>Select Source</option>
+
+<option>Website</option>
+
+<option>Walk In</option>
+
+<option>Facebook</option>
+
+<option>Instagram</option>
+
+<option>Reference</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Reference</label>
+
+<input
+type="text"
+class="form-control"
+placeholder="Reference Name">
+
+</div>
+
+<div class="form-group">
+
+<label>Date</label>
+
+<input
+type="date"
+class="form-control">
+
+</div>
+
+<div class="form-group">
+
+<label>Status</label>
+
+<select class="form-control">
+
+<option>Active</option>
+
+<option>Pending</option>
+
+<option>Closed</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="form-group mt-20">
+
+<label>Address</label>
+
+<textarea
+class="form-control textarea"
+rows="3"
+placeholder="Enter Address"></textarea>
+
+</div>
+
+<div class="form-group mt-20">
+
+<label>Description</label>
+
+<textarea
+class="form-control textarea"
+rows="4"
+placeholder="Enter Description"></textarea>
+
+</div>
+
+<div class="modal-footer">
+
+<button
+type="button"
+class="btn btn-secondary close-btn">
+
+Cancel
+
+</button>
+
+<button
+type="submit"
+class="btn">
+
+Save Enquiry
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div></tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script src="../js/app.js"></script>
+<script src="../js/modal.js"></script>
+  </body>
+</html>

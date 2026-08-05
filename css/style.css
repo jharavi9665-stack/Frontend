@@ -1,0 +1,458 @@
+/* ======================================================
+   SCHOOL ERP - GLOBAL STYLESHEET
+   Author: ChatGPT
+====================================================== */
+
+/* =============================
+   GOOGLE FONT
+============================= */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
+/* =============================
+   RESET
+============================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* =============================
+   ROOT VARIABLES
+============================= */
+
+:root {
+  --primary: #162b68;
+  --primary-light: #2146a5;
+
+  --secondary: #f4b544;
+
+  --background: #f4f6f9;
+
+  --white: #ffffff;
+
+  --black: #111111;
+
+  --text: #444444;
+
+  --text-light: #777777;
+
+  --border: #dddddd;
+
+  --success: #28a745;
+
+  --danger: #dc3545;
+
+  --warning: #ffc107;
+
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+  --radius: 10px;
+}
+
+/* =============================
+   BODY
+============================= */
+
+body {
+  font-family: "Poppins", sans-serif;
+
+  background: var(--background);
+
+  color: var(--text);
+}
+
+/* =============================
+   HEADINGS
+============================= */
+
+h1 {
+  font-size: 34px;
+
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 28px;
+
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 22px;
+
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 18px;
+
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 16px;
+
+  font-weight: 600;
+}
+
+/* =============================
+   PARAGRAPH
+============================= */
+
+p {
+  color: var(--text-light);
+
+  line-height: 1.7;
+}
+
+/* =============================
+   LINKS
+============================= */
+
+a {
+  text-decoration: none;
+
+  color: inherit;
+}
+
+/* =============================
+   LIST
+============================= */
+
+ul {
+  list-style: none;
+}
+
+/* =============================
+   IMAGE
+============================= */
+
+img {
+  display: block;
+
+  max-width: 100%;
+}
+
+/* =============================
+   BUTTON
+============================= */
+
+button {
+  font-family: "Poppins", sans-serif;
+
+  cursor: pointer;
+}
+
+/* =============================
+   INPUT
+============================= */
+
+input,
+select,
+textarea {
+  font-family: "Poppins", sans-serif;
+
+  outline: none;
+}
+
+/* =============================
+   CONTAINER
+============================= */
+
+.container {
+  width: 90%;
+
+  max-width: 1400px;
+
+  margin: auto;
+}
+
+/* =============================
+   CARD
+============================= */
+
+.card {
+  background: #fff;
+
+  border-radius: 12px;
+
+  box-shadow: var(--shadow);
+
+  padding: 25px;
+}
+
+/* =============================
+   PRIMARY BUTTON
+============================= */
+
+.btn {
+  display: inline-flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 12px 25px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: var(--primary);
+
+  color: white;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #0f1d4a;
+}
+
+/* =============================
+   SECONDARY BUTTON
+============================= */
+
+.btn-secondary {
+  background: var(--secondary);
+
+  color: #111;
+}
+
+.btn-secondary:hover {
+  background: #d99c1d;
+}
+
+/* =============================
+   INPUT FIELD
+============================= */
+
+.form-control {
+  width: 100%;
+
+  height: 48px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  transition: 0.3s;
+
+  font-size: 15px;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+
+  box-shadow: 0 0 8px rgba(22, 43, 104, 0.15);
+}
+
+/* =============================
+   LABEL
+============================= */
+
+label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+/* =============================
+   TABLE
+============================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+th {
+  background: #f8f9fb;
+
+  padding: 15px;
+
+  text-align: left;
+
+  font-size: 14px;
+}
+
+td {
+  padding: 15px;
+
+  border-bottom: 1px solid #eee;
+}
+
+/* =============================
+   BADGES
+============================= */
+
+.badge {
+  display: inline-block;
+
+  padding: 6px 12px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.badge-success {
+  background: #d4f8e8;
+
+  color: #0f8a4a;
+}
+
+.badge-danger {
+  background: #fad7d7;
+
+  color: #c82333;
+}
+
+.badge-warning {
+  background: #fff4cc;
+
+  color: #c58b00;
+}
+
+/* =============================
+   FLEX UTILITIES
+============================= */
+
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+
+  flex-direction: column;
+}
+
+/* =============================
+   SPACING
+============================= */
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mt-30 {
+  margin-top: 30px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
+/* =============================
+   TEXT ALIGNMENT
+============================= */
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* =============================
+   SHADOW
+============================= */
+
+.shadow {
+  box-shadow: var(--shadow);
+}
+
+/* =============================
+   BORDER RADIUS
+============================= */
+
+.rounded {
+  border-radius: 10px;
+}
+
+/* =============================
+   SCROLLBAR
+============================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #162b68;
+
+  border-radius: 20px;
+}
+
+/* =============================
+   FADE ANIMATION
+============================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+.fade {
+  animation: fadeIn 0.4s ease;
+}

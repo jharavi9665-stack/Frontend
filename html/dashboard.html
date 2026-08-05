@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Devryon Demo School</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="brand-logo-box">
+          <img src="../images/school-logo.png" alt="Devryon Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Devryon</span>
+          <span class="brand-sub">Demo School</span>
+        </div>
+      </div>
+
+      <!-- Session chip -->
+      <div class="session-pill-wrap">
+        <div class="session-pill">
+          <svg class="session-pill-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="4" width="16" height="14" rx="2" stroke="#a8bce0" stroke-width="1.5"/>
+            <path d="M6 2v4M14 2v4M2 9h16" stroke="#a8bce0" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span>Current Session: 2025-26</span>
+        </div>
+      </div>
+
+      <!-- Nav label -->
+      <p class="nav-label">QUICK LINKS</p>
+
+      <!-- Nav -->
+      <nav id="mainNav">
+
+        <!-- Front Office (dropdown) -->
+        <div class="nav-group open" id="navGroupFrontOffice">
+          <a class="nav-group-toggle active" data-group="frontOffice" href="#frontOffice">
+            <span class="nav-icon">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M7.5 18V13h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Front Office</span>
+            <span class="nav-arrow nav-arrow--dropdown">
+              <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
+          <div class="nav-submenu" id="submenuFrontOffice">
+            <a href="#admission" data-view="admission" class="nav-sub-item">
+              <span class="sub-dot"></span>Admission Enquiry
+            </a>
+            <a href="#visitor" data-view="visitor" class="nav-sub-item">
+              <span class="sub-dot"></span>Visitor Book
+            </a>
+            <a href="#dispatch" data-view="dispatch" class="nav-sub-item">
+              <span class="sub-dot"></span>Postal Dispatch
+            </a>
+            <a href="#phone" data-view="phone" class="nav-sub-item">
+              <span class="sub-dot"></span>Phone Call Log
+            </a>
+            <a href="#receive" data-view="receive" class="nav-sub-item">
+              <span class="sub-dot"></span>Postal Receive
+            </a>
+            <a href="#complaint" data-view="complaint" class="nav-sub-item">
+              <span class="sub-dot"></span>Complain
+            </a>
+            <a href="#purpose" data-view="purpose" class="nav-sub-item">
+              <span class="sub-dot"></span>Setup Front Office
+            </a>
+          </div>
+        </div>
+
+        <!-- Student Information (dropdown) -->
+        <div class="nav-group" id="navGroupStudents">
+          <a class="nav-group-toggle" data-group="students" href="#students">
+            <span class="nav-icon">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="7" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M1 17c0-3.314 2.686-6 6-6h2c3.314 0 6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="14.5" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M17 13c1.105.633 2 1.72 2 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Student Information</span>
+            <span class="nav-arrow nav-arrow--dropdown">
+              <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
+          <div class="nav-submenu" id="submenuStudents">
+            <a href="#studentDetails" data-view="studentDetails" class="nav-sub-item">
+              <span class="sub-dot"></span>Student Details
+            </a>
+            <a href="#studentAdmission" data-view="studentAdmission" class="nav-sub-item">
+              <span class="sub-dot"></span>Student Admission
+            </a>
+            <a href="#onlineAdmission" data-view="onlineAdmission" class="nav-sub-item">
+              <span class="sub-dot"></span>Online Admission
+            </a>
+            <a href="#disabledStudents" data-view="disabledStudents" class="nav-sub-item">
+              <span class="sub-dot"></span>Disabled Students
+            </a>
+            <a href="#bulkDelete" data-view="bulkDelete" class="nav-sub-item">
+              <span class="sub-dot"></span>Bulk Delete
+            </a>
+            <a href="#studentCategories" data-view="studentCategories" class="nav-sub-item">
+              <span class="sub-dot"></span>Student Categories
+            </a>
+            <a href="#studentHouse" data-view="studentHouse" class="nav-sub-item">
+              <span class="sub-dot"></span>Student House
+            </a>
+            <a href="#disableReason" data-view="disableReason" class="nav-sub-item">
+              <span class="sub-dot"></span>Disable Reason
+            </a>
+          </div>
+        </div>
+
+        <a href="#fees" data-view="fees">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 6v1.5M10 12.5V14M7.5 8.5A2 2 0 0110 7a2 2 0 012 2c0 1.5-2 2-2 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Fees Collection</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#online" data-view="online">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="3" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7 18h6M10 14v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Online Course</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#behaviour" data-view="behaviour">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 6h12M4 10h8M4 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Behaviour Records</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#tfa" data-view="tfa">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="9" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="10" cy="13.5" r="1.5" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="nav-text">TFA</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#scholarship" data-view="scholarship">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2l2.5 5H18l-4 3 1.5 5.5L10 13l-5.5 2.5L6 10 2 7h5.5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Scholarship</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#timetable" data-view="timetable">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 2v4M14 2v4M2 9h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6 13h2v2H6z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="nav-text">AI Timetable</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#gmeet" data-view="gmeet">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="5" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M14 8l4-2.5v9L14 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Gmeet Live Classes</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#zoom" data-view="zoom">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="5" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M14 8l4-2.5v9L14 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Zoom Live Classes</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#income" data-view="income">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2v16M6.5 5.5C6.5 4.12 7.62 3 9 3h2.5A2.5 2.5 0 0114 5.5c0 1.38-1.12 2.5-2.5 2.5H9A2.5 2.5 0 016.5 10.5c0 1.38 1.12 2.5 2.5 2.5h2.5A2.5 2.5 0 0014 15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Income</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="#expenses" data-view="expenses">
+          <span class="nav-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M2 9h16" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 13h2M10 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">Expenses</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+      </nav>
+    </aside>
+
+    <!-- ===== WORKSPACE ===== -->
+    <section class="workspace">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+
+        <!-- Hamburger -->
+        <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h16M1 7h16M1 13h16" stroke="#56647b" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <!-- Brand (logo + text) -->
+        <div class="header-brand">
+          <div class="hb-logo-box">
+            <img src="../images/school-logo.png" alt="Devryon Demo School" class="hb-logo-img">
+          </div>
+          <div class="hb-text">
+            <span class="hb-name">Devryon</span>
+            <span class="hb-sub">Demo School</span>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="header-search">
+          <svg class="search-svg" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="6.5" cy="6.5" r="5" stroke="#9ba8bc" stroke-width="1.6"/>
+            <path d="M10.5 10.5L14 14" stroke="#9ba8bc" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <input type="search" placeholder="Search students, staff, fees, admissions...">
+        </div>
+
+        <!-- Actions -->
+        <div class="top-actions">
+
+          <!-- English -->
+          <button class="header-chip">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="8.5" stroke="#56647b" stroke-width="1.5"/>
+              <ellipse cx="10" cy="10" rx="3.5" ry="8.5" stroke="#56647b" stroke-width="1.5"/>
+              <path d="M1.5 10h17" stroke="#56647b" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M3 5.5h14M3 14.5h14" stroke="#56647b" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            English
+            <svg class="chip-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1l4 4 4-4" stroke="#56647b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <!-- Calendar -->
+          <button class="header-chip">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="4" width="16" height="14" rx="2" stroke="#56647b" stroke-width="1.5"/>
+              <path d="M6 2v4M14 2v4M2 9h16" stroke="#56647b" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Calendar
+            <svg class="chip-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1l4 4 4-4" stroke="#56647b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <!-- Tasks -->
+          <button class="header-chip">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="14" height="14" rx="2" stroke="#56647b" stroke-width="1.5"/>
+              <path d="M7 10l2 2 4-4" stroke="#56647b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Tasks
+            <span class="chip-badge chip-badge--blue">3</span>
+          </button>
+
+          <!-- Messages -->
+          <button class="header-chip">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2H6l-4 3V4z" stroke="#56647b" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            Messages
+            <span class="chip-badge chip-badge--orange">2</span>
+          </button>
+
+          <!-- User profile -->
+          <div class="user-profile">
+            <div class="user-avatar-wrap">
+              <img class="user-avatar" src="../images/login-hero.jpg" alt="Raj Yadav">
+              <span class="user-online-dot"></span>
+            </div>
+            <div class="user-info">
+              <span class="user-name">Raj Yadav</span>
+              <span class="user-role">
+                Administrator
+                <svg class="chip-caret" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1l4 4 4-4" stroke="#8c96a8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main id="app" class="page"></main>
+
+    </section>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="recordModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <span class="modal-icon">✦</span>
+          <span>
+            <strong id="modalTitle">Add Record</strong>
+            <small id="modalSub">Fill in the details below</small>
+          </span>
+        </div>
+        <button class="modal-close" data-close aria-label="Close">×</button>
+      </div>
+      <form id="recordForm">
+        <div class="modal-body" id="formFields"></div>
+        <div class="modal-foot">
+          <button type="button" class="btn ghost" data-close>Cancel</button>
+          <button class="btn primary" type="submit">▣ &nbsp;<span id="saveText">Save</span>&nbsp;→</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/erp.js"></script>
+</body>
+</html>
