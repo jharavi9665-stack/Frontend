@@ -208,14 +208,530 @@ function initDashboardCharts() {
 }
 
 /* ------------------------------------------------------------
-   4. MODULE TABLE RENDERER & ROUTER
+   4. SETUP FRONT OFFICE & MODULAR DATA HANDLERS
 ------------------------------------------------------------ */
+
+const SetupFrontOfficeModule = {
+  initialData: {
+    purpose: [
+      { id: 'PUR1001', name: 'Meeting Principal', description: 'Meeting with School Principal' },
+      { id: 'PUR1002', name: 'Admission Enquiry', description: 'Enquiry for new student admission' },
+      { id: 'PUR1003', name: 'Parent Meeting', description: 'General parent teacher meeting' },
+      { id: 'PUR1004', name: 'Staff Meeting', description: 'Academic and administrative staff meeting' },
+      { id: 'PUR1005', name: 'Official Work', description: 'Government and regulatory affairs' }
+    ],
+    complaintType: [
+      { id: 'CT1001', name: 'Infrastructure', description: 'Facility and equipment issues' },
+      { id: 'CT1002', name: 'Academic', description: 'Curriculum or teaching issues' },
+      { id: 'CT1003', name: 'Behaviour', description: 'Student conduct matters' },
+      { id: 'CT1004', name: 'Staff', description: 'Staff and teacher related feedback' }
+    ],
+    source: [
+      { id: 'SRC1001', name: 'Notice Board', description: 'School front notice board' },
+      { id: 'SRC1002', name: 'Newspaper', description: 'Print advertisement' },
+      { id: 'SRC1003', name: 'Website', description: 'Official school portal' },
+      { id: 'SRC1004', name: 'via friend', description: 'Word of mouth referral' },
+      { id: 'SRC1005', name: 'Walk In', description: 'Direct visit to reception' }
+    ],
+    reference: [
+      { id: 'REF1001', name: 'Rahul Sharma', contact: '9812345678', description: 'Parent referral' },
+      { id: 'REF1002', name: 'Newspaper Ad', contact: '—', description: 'Daily Tribune feature' },
+      { id: 'REF1003', name: 'Alumni Network', contact: 'alumni@school.edu', description: 'Devryon Alumni Association' }
+    ]
+  },
+
+  getStorageKey(type) {
+    const map = {
+      purpose: (window.STORAGE_KEYS && STORAGE_KEYS.PURPOSE) || 'school_erp_purposes',
+      complaintType: (window.STORAGE_KEYS && STORAGE_KEYS.COMPLAINT_TYPE) || 'school_erp_complaint_types',
+      source: (window.STORAGE_KEYS && STORAGE_KEYS.SOURCE) || 'school_erp_sources',
+      reference: (window.STORAGE_KEYS && STORAGE_KEYS.REFERENCE) || 'school_erp_references'
+    };
+    return map[type] || 'school_erp_' + type;
+  },
+
+  getRecords(type, query = '') {
+    const key = this.getStorageKey(type);
+    const initial = this.initialData[type] || [];
+    const all = StorageUtils.get(key, initial);
+    if (!query) return all;
+    const q = query.toLowerCase();
+    return all.filter(r =>
+      (r.name || '').toLowerCase().includes(q) ||
+      (r.description || '').toLowerCase().includes(q) ||
+      (r.contact || '').toLowerCase().includes(q)
+    );
+  },
+
+  getById(type, id) {
+    const key = this.getStorageKey(type);
+    return StorageUtils.getById(key, id);
+  },
+
+  saveRecord(type, data, editId = null) {
+    if (!data.name || !data.name.trim()) {
+      const titles = { purpose: 'Purpose', complaintType: 'Complaint Type', source: 'Source', reference: 'Reference' };
+      throw new Error((titles[type] || 'Name') + ' is required.');
+    }
+    const key = this.getStorageKey(type);
+    const prefixMap = { purpose: 'PUR', complaintType: 'CT', source: 'SRC', reference: 'REF' };
+    const prefix = prefixMap[type] || 'SET';
+
+    const payload = {
+      name: data.name.trim(),
+      description: data.description || '',
+      ...(type === 'reference' ? { contact: data.contact || '' } : {})
+    };
+
+    if (editId) return StorageUtils.update(key, editId, payload);
+    return StorageUtils.add(key, payload, 'id', prefix);
+  },
+
+  deleteRecord(type, id) {
+    const key = this.getStorageKey(type);
+    return StorageUtils.delete(key, id);
+  }
+};
+window.SetupFrontOfficeModule = SetupFrontOfficeModule;
+
+/** Column definitions for each module */
+const moduleColumns = {
+  admission:     ['Name', 'Phone', 'Source', 'Enquiry Date', 'Last Follow Up Date', 'Next Follow Up Date', 'Status', 'Action'],
+  visitor:       ['Purpose', 'Meeting With', 'Visitor Name', 'Phone', 'ID Card', 'Number Of Person', 'Date', 'In Time', 'Out Time', 'Action'],
+  dispatch:      ['#', 'To Title', 'Reference No.', 'From', 'Type', 'Date', 'Action'],
+  receive:       ['#', 'From Title', 'Reference No.', 'Type', 'Date', 'Note', 'Action'],
+  phone:         ['#', 'Name', 'Phone', 'Call Type', 'Date', 'Follow Up Date', 'Duration', 'Action'],
+  complaint:     ['#', 'Complain By', 'Phone', 'Type', 'Date', 'Assigned To', 'Action'],
+  purpose:       ['#', 'Purpose', 'Description', 'Action'],
+  complaintType: ['#', 'Complaint Type', 'Description', 'Action'],
+  source:        ['#', 'Source', 'Description', 'Action'],
+  reference:     ['#', 'Reference', 'Contact', 'Description', 'Action']
+};
+
+/** Format a YYYY-MM-DD date string for display */
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+/** Render table rows for each module */
+function renderModuleRows(mod, query) {
+  const avatarColors = [
+    { bg: '#e0e7ff', c: '#4338ca' }, { bg: '#fef3c7', c: '#d97706' },
+    { bg: '#f3e8ff', c: '#7e22ce' }, { bg: '#ccfbf1', c: '#0d9488' }
+  ];
+
+  const person = (name, idx) => {
+    const av = avatarColors[idx % 4];
+    return `<span class="person">
+      <span class="initial" style="background:${av.bg};color:${av.c};">${(name||'?')[0].toUpperCase()}</span>
+      <span class="person-name">${name||'—'}</span>
+    </span>`;
+  };
+
+  const typeBadge = t => `<span class="type-badge">${t||'—'}</span>`;
+  const actBtns   = id => `
+    <div class="row-actions">
+      <button class="act-btn edit"   data-action="edit"   data-id="${id}" title="Edit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button class="act-btn delete" data-action="delete" data-id="${id}" title="Delete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+    </div>`;
+
+  const noRow = cols => `<tr><td colspan="${cols}" class="empty-cell" style="text-align:center;padding:28px;color:#8994a7;">No records found.</td></tr>`;
+
+  if (mod === 'visitor' && window.VisitorModule) {
+    const recs = VisitorModule.getRecords(query);
+    const total = VisitorModule.getRecords().length;
+    if (!recs.length) return { rows: noRow(10), total, count: 0 };
+    return {
+      rows: VisitorModule.renderRowsHtml(recs),
+      total,
+      count: recs.length
+    };
+  }
+
+  if (mod === 'dispatch' && window.PostalDispatchModule) {
+    const recs = PostalDispatchModule.getRecords(query);
+    const total = PostalDispatchModule.getRecords().length;
+    if (!recs.length) return { rows: noRow(7), total, count: 0 };
+    return {
+      rows: recs.map((r,i) => `<tr data-id="${r.id}">
+        <td>${i+1}</td><td>${r.toTitle||'—'}</td><td>${r.referenceNo||'—'}</td>
+        <td>${r.fromTitle||'—'}</td><td>${typeBadge(r.type)}</td>
+        <td>${fmtDate(r.date)}</td><td>${actBtns(r.id)}</td>
+      </tr>`).join(''),
+      total,
+      count: recs.length
+    };
+  }
+
+  if (mod === 'receive' && window.PostalReceiveModule) {
+    const recs = PostalReceiveModule.getRecords(query);
+    const total = PostalReceiveModule.getRecords().length;
+    if (!recs.length) return { rows: noRow(7), total, count: 0 };
+    return {
+      rows: recs.map((r,i) => `<tr data-id="${r.id}">
+        <td>${i+1}</td><td>${r.fromTitle||'—'}</td><td>${r.referenceNo||'—'}</td>
+        <td>${typeBadge(r.type)}</td><td>${fmtDate(r.date)}</td>
+        <td>${r.note||'—'}</td><td>${actBtns(r.id)}</td>
+      </tr>`).join(''),
+      total,
+      count: recs.length
+    };
+  }
+
+  if (mod === 'phone' && window.PhoneLogModule) {
+    const callBadge = t => {
+      const map = { 'Incoming': ['#dcfce7','#16a34a'], 'Outgoing': ['#dbeafe','#1d4ed8'], 'Missed': ['#fee2e2','#dc2626'] };
+      const [bg,c] = map[t] || map['Incoming'];
+      return `<span class="type-badge" style="background:${bg};color:${c};">${t||'—'}</span>`;
+    };
+    const recs = PhoneLogModule.getRecords(query);
+    const total = PhoneLogModule.getRecords().length;
+    if (!recs.length) return { rows: noRow(8), total, count: 0 };
+    return {
+      rows: recs.map((r,i) => `<tr data-id="${r.id}">
+        <td>${i+1}</td><td>${person(r.name,i)}</td><td>${r.phone||'—'}</td>
+        <td>${callBadge(r.callType)}</td><td>${fmtDate(r.date)}</td>
+        <td>${r.followUpDate ? fmtDate(r.followUpDate) : '—'}</td>
+        <td>${r.duration||'—'}</td><td>${actBtns(r.id)}</td>
+      </tr>`).join(''),
+      total,
+      count: recs.length
+    };
+  }
+
+  if (mod === 'complaint' && window.ComplainModule) {
+    const recs = ComplainModule.getRecords(query);
+    const total = ComplainModule.getRecords().length;
+    if (!recs.length) return { rows: noRow(7), total, count: 0 };
+    return {
+      rows: recs.map((r,i) => `<tr data-id="${r.id}">
+        <td>${i+1}</td><td>${person(r.complainBy,i)}</td><td>${r.phone||'—'}</td>
+        <td>${typeBadge(r.type)}</td><td>${fmtDate(r.date)}</td>
+        <td>${r.assigned||'—'}</td><td>${actBtns(r.id)}</td>
+      </tr>`).join(''),
+      total,
+      count: recs.length
+    };
+  }
+
+  if (['purpose', 'complaintType', 'source', 'reference'].includes(mod)) {
+    const recs = SetupFrontOfficeModule.getRecords(mod, query);
+    const total = SetupFrontOfficeModule.getRecords(mod).length;
+    const cols = mod === 'reference' ? 5 : 4;
+    if (!recs.length) return { rows: noRow(cols), total, count: 0 };
+    return {
+      rows: recs.map((r,i) => `<tr data-id="${r.id}">
+        <td>${i+1}</td>
+        <td><strong>${r.name||'—'}</strong></td>
+        ${mod === 'reference' ? `<td>${r.contact||'—'}</td>` : ''}
+        <td>${r.description||'—'}</td>
+        <td>${actBtns(r.id)}</td>
+      </tr>`).join(''),
+      total,
+      count: recs.length
+    };
+  }
+
+  return { rows: noRow(4), total: 0, count: 0 };
+}
+
+/** Get current active filter values */
+function getActiveFilters() {
+  return {
+    query:        document.getElementById('tableSearchInput')?.value || '',
+    purpose:      document.getElementById('filterPurpose')?.value || '',
+    dateRange:    document.getElementById('filterDateRange')?.value || '',
+    studentClass: document.getElementById('filterClass')?.value || '',
+    source:       document.getElementById('filterSource')?.value || '',
+    status:       document.getElementById('filterStatus')?.value || '',
+    fromDate:     document.getElementById('filterFromDate')?.value || '',
+    toDate:       document.getElementById('filterToDate')?.value || ''
+  };
+}
+
+/** Update only table rows and pagination text without re-rendering the whole page */
+function updateTableOnly() {
+  const tbody     = document.querySelector('.table-wrap tbody') || document.querySelector('.visitor-table tbody');
+  const pagerSpan = document.querySelector('.visitor-pagination-bar .pagination-info') || document.querySelector('.pager span');
+  if (!tbody) return;
+
+  const filters = getActiveFilters();
+  let result;
+  if (current === 'admission' && window.AdmissionModule) {
+    const records = AdmissionModule.getRecords(filters);
+    const total = AdmissionModule.getRecords().length;
+    result = {
+      rows: AdmissionModule.renderRowsHtml(records),
+      total: total,
+      count: records.length
+    };
+  } else if (current === 'visitor' && window.VisitorModule) {
+    const records = VisitorModule.getRecords(filters);
+    const total = VisitorModule.getRecords().length;
+    result = {
+      rows: VisitorModule.renderRowsHtml(records),
+      total: total,
+      count: records.length
+    };
+  } else {
+    result = renderModuleRows(current, filters.query);
+  }
+
+  tbody.innerHTML = result.rows;
+
+  if (pagerSpan) {
+    pagerSpan.textContent = result.count === 0
+      ? 'No records found'
+      : `Showing 1 to ${result.count} of ${result.total} entries`;
+  }
+
+  bindRowActions();
+  if (window.ExportUtils) ExportUtils.bindExportButtons();
+}
+
+/** Bind row edit and delete actions */
+function bindRowActions() {
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const row      = btn.closest('tr');
+      const recordId = btn.dataset.id || (row ? row.dataset.id : null);
+      const action   = btn.dataset.action;
+
+      if (action === 'delete') {
+        const labels = {
+          admission: 'enquiry', visitor: 'visitor record', dispatch: 'dispatch record',
+          receive: 'receive record', phone: 'call log', complaint: 'complaint',
+          purpose: 'purpose', complaintType: 'complaint type', source: 'source', reference: 'reference'
+        };
+        if (!confirm(`Delete this ${labels[current] || 'record'}?`)) return;
+
+        if (current === 'admission' && window.AdmissionModule)          AdmissionModule.deleteRecord(recordId);
+        else if (current === 'visitor'   && window.VisitorModule)        VisitorModule.deleteRecord(recordId);
+        else if (current === 'dispatch'  && window.PostalDispatchModule)  PostalDispatchModule.deleteRecord(recordId);
+        else if (current === 'receive'   && window.PostalReceiveModule)   PostalReceiveModule.deleteRecord(recordId);
+        else if (current === 'phone'     && window.PhoneLogModule)        PhoneLogModule.deleteRecord(recordId);
+        else if (current === 'complaint' && window.ComplainModule)        ComplainModule.deleteRecord(recordId);
+        else if (['purpose', 'complaintType', 'source', 'reference'].includes(current)) {
+          SetupFrontOfficeModule.deleteRecord(current, recordId);
+        }
+        updateTableOnly();
+
+      } else if (action === 'edit') {
+        openModal('edit', recordId);
+      } else if (action === 'view') {
+        if (current === 'visitor' && window.viewVisitorDetails) {
+          viewVisitorDetails(recordId);
+        } else {
+          openModal('view', recordId);
+        }
+      }
+    };
+  });
+}
+
 function render() {
   if (current === 'home') {
     renderHome();
     return;
   }
 
+  // Specialized Visitor List view matching the image
+  if (current === 'visitor') {
+    const records = window.VisitorModule ? VisitorModule.getRecords() : [];
+    const rowsHtml = window.VisitorModule ? VisitorModule.renderRowsHtml(records) : '';
+    const totalCount = records.length;
+
+    $('#app').innerHTML = `
+      <!-- Header Card -->
+      <section class="visitor-header-card">
+        <div class="visitor-header-left">
+          <div class="visitor-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="visitor-title-box">
+            <h2>Visitor List</h2>
+            <p>View and manage all visitors who have visited the school.</p>
+          </div>
+        </div>
+        <button class="btn-add-visitor" id="addRecord" type="button">
+          <span>+</span> Add Visitor
+        </button>
+      </section>
+
+      <!-- Filter / Search Bar Card -->
+      <section class="visitor-filter-card">
+        <div class="visitor-search-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input id="tableSearchInput" placeholder="Search by visitor name, purpose, meeting with...">
+        </div>
+
+        <div class="visitor-purpose-select-wrap">
+          <select id="filterPurpose">
+            <option value="">All Purpose</option>
+            <option value="Student Enquiry">Student Enquiry</option>
+            <option value="Parent Meeting">Parent Meeting</option>
+            <option value="Meeting Principal">Meeting Principal</option>
+            <option value="Staff Meeting">Staff Meeting</option>
+            <option value="Official Work">Official Work</option>
+            <option value="Other">Other</option>
+          </select>
+          <svg class="select-caret" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="filter-funnel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </div>
+
+        <div class="visitor-date-range-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <input type="text" id="filterDateRange" placeholder="Select Date Range" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+        </div>
+
+        <button class="btn-visitor-reset" id="btnResetFilters" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Reset
+        </button>
+      </section>
+
+      <!-- Table Card -->
+      <section class="visitor-table-card">
+        <div class="visitor-table-toolbar">
+          <div class="show-entries-wrap">
+            <span>Show</span>
+            <select id="perPageSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+            <span>entries</span>
+          </div>
+          <div class="table-actions-right">
+            <button class="btn-export-main" title="Export">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export
+            </button>
+            <button class="tool-icon-btn export" title="Export Excel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+            </button>
+            <button class="tool-icon-btn export" title="Export PDF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M10 12h4"/><path d="M10 16h4"/></svg>
+            </button>
+            <button class="tool-icon-btn export" title="Print">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </button>
+            <button class="tool-icon-btn export" title="Columns">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/><path d="M18 9l3 3-3 3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap" style="overflow-x: auto;">
+          <table class="visitor-table">
+            <thead>
+              <tr>
+                <th>Purpose <span class="sort-icon">↕</span></th>
+                <th>Meeting With <span class="sort-icon">↕</span></th>
+                <th>Visitor Name <span class="sort-icon">↕</span></th>
+                <th>Phone <span class="sort-icon">↕</span></th>
+                <th>ID Card <span class="sort-icon">↕</span></th>
+                <th>Number Of Person <span class="sort-icon">↕</span></th>
+                <th>Date <span class="sort-icon">↕</span></th>
+                <th>In Time <span class="sort-icon">↕</span></th>
+                <th>Out Time <span class="sort-icon">↕</span></th>
+                <th style="text-align:center;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="visitor-pagination-bar">
+          <span class="pagination-info">Showing 1 to ${totalCount} of ${totalCount} entries</span>
+          <div class="pages" style="display:flex;gap:4px;">
+            <button class="visitor-page-btn" type="button">‹</button>
+            <button class="visitor-page-btn" type="button">1</button>
+            <button class="visitor-page-btn active" type="button">2</button>
+            <button class="visitor-page-btn" type="button">›</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Tip Banner -->
+      <section class="visitor-tip-banner">
+        <div class="visitor-tip-left">
+          <div class="tip-info-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <span><strong>Tip:</strong> You can export the visitor list in Excel, PDF or print it for your records.</span>
+        </div>
+        <div class="visitor-tip-graphic">
+          <svg width="40" height="34" viewBox="0 0 48 40" fill="none">
+            <rect x="6" y="6" width="22" height="28" rx="3" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+            <rect x="11" y="2" width="12" height="6" rx="2" fill="#818cf8"/>
+            <line x1="11" y1="14" x2="23" y2="14" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="11" y1="19" x2="23" y2="19" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="11" y1="24" x2="18" y2="24" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M36 12l8 4v8c0 7-8 12-8 12s-8-5-8-12v-8l8-4z" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+            <path d="M33 22l2.5 2.5 5.5-5.5" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+    `;
+
+    // Bind events
+    const btnAdd = $('#addRecord');
+    if (btnAdd) btnAdd.onclick = () => openModal('add');
+
+    const searchInput = document.getElementById('tableSearchInput');
+    if (searchInput) searchInput.addEventListener('input', updateTableOnly);
+
+    const purposeSelect = document.getElementById('filterPurpose');
+    if (purposeSelect) purposeSelect.addEventListener('change', updateTableOnly);
+
+    const dateRangeInput = document.getElementById('filterDateRange');
+    if (dateRangeInput) {
+      dateRangeInput.addEventListener('input', updateTableOnly);
+      dateRangeInput.addEventListener('change', updateTableOnly);
+    }
+
+    const btnReset = document.getElementById('btnResetFilters');
+    if (btnReset) {
+      btnReset.addEventListener('click', e => {
+        e.preventDefault();
+        if (searchInput) searchInput.value = '';
+        if (purposeSelect) purposeSelect.selectedIndex = 0;
+        if (dateRangeInput) dateRangeInput.value = '';
+        updateTableOnly();
+      });
+    }
+
+    bindRowActions();
+    if (window.ExportUtils) ExportUtils.bindExportButtons();
+    return;
+  }
+
+  const isSetup = ['purpose', 'complaintType', 'source', 'reference'].includes(current);
   const info = viewInfo[current] || [title(current), 'This module is ready for configuration'];
   if (!viewInfo[current]) {
     $('#app').innerHTML = `
@@ -227,12 +743,10 @@ function render() {
     return;
   }
 
-  const columns = current === 'admission'
-    ? ['Name', 'Phone', 'Source', 'Enquiry Date', 'Last Follow Up Date', 'Next Follow Up Date', 'Status', 'Action']
-    : ['Name', 'Description', 'Status', 'Action'];
+  const columns = moduleColumns[current] || ['Name', 'Description', 'Status', 'Action'];
 
   // Criteria Filters Template
-  const filtersHtml = ['admission'].includes(current)
+  const filtersHtml = current === 'admission'
     ? `<section class="criteria">
         <div class="criteria-header">
           <div class="section-title-wrap">
@@ -284,11 +798,11 @@ function render() {
             </div>
           </div>
           <div class="criteria-right-col">
-            <button id="btnSearchCriteria" class="field-search">
+            <button id="btnSearchCriteria" class="field-search" type="button">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               Search
             </button>
-            <div id="btnResetFilters" class="reset">
+            <div id="btnResetFilters" class="reset" role="button" tabindex="0">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
               Reset Filters
             </div>
@@ -296,30 +810,38 @@ function render() {
         </div>
       </section>` : '';
 
-  // Get table rows based on active module
+  // Setup sub-navigation tabs
+  const setupTabsHtml = isSetup
+    ? `<div class="setup-tabs" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+        <a href="#purpose" class="btn ${current==='purpose'?'primary':'ghost'}" data-view="purpose" style="text-decoration:none;font-size:13px;padding:8px 16px;">Purpose</a>
+        <a href="#complaintType" class="btn ${current==='complaintType'?'primary':'ghost'}" data-view="complaintType" style="text-decoration:none;font-size:13px;padding:8px 16px;">Complaint Type</a>
+        <a href="#source" class="btn ${current==='source'?'primary':'ghost'}" data-view="source" style="text-decoration:none;font-size:13px;padding:8px 16px;">Source</a>
+        <a href="#reference" class="btn ${current==='reference'?'primary':'ghost'}" data-view="reference" style="text-decoration:none;font-size:13px;padding:8px 16px;">Reference</a>
+      </div>`
+    : '';
+
+  // Initial table data
   let rowsHtml = '';
   let totalCount = 0;
   let activeCount = 0;
 
   if (current === 'admission' && window.AdmissionModule) {
-    const filters = {
-      query: document.getElementById('tableSearchInput')?.value || '',
-      studentClass: document.getElementById('filterClass')?.value || '',
-      source: document.getElementById('filterSource')?.value || '',
-      status: document.getElementById('filterStatus')?.value || ''
-    };
-    const records = AdmissionModule.getRecords(filters);
-    totalCount = AdmissionModule.getRecords().length;
+    const records = AdmissionModule.getRecords();
+    totalCount  = records.length;
     activeCount = records.length;
-    rowsHtml = AdmissionModule.renderRowsHtml(records);
+    rowsHtml    = AdmissionModule.renderRowsHtml(records);
   } else {
-    rowsHtml = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#8994a7;">No records available.</td></tr>`;
+    const result = renderModuleRows(current, '');
+    rowsHtml    = result.rows;
+    totalCount  = result.total;
+    activeCount = result.count;
   }
 
-  const addName = title(current);
+  const addName = isSetup ? title(current) : (info[0] || title(current));
 
   $('#app').innerHTML = `
     ${filtersHtml}
+    ${setupTabsHtml}
     <section class="list-card">
       <div class="card-heading">
         <div class="section-title-wrap">
@@ -331,7 +853,7 @@ function render() {
       <div class="table-tools">
         <div class="search-input-wrap">
           <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="tableSearchInput" placeholder="Search by name, phone or source...">
+          <input id="tableSearchInput" placeholder="Search by name, phone or details...">
         </div>
         <div class="tool-actions">
           <select><option>50</option></select>
@@ -361,17 +883,34 @@ function render() {
     </section>`;
 
   // Add Record Button Event
-  $('#addRecord').onclick = () => openModal('add');
+  const btnAdd = $('#addRecord');
+  if (btnAdd) btnAdd.onclick = () => openModal('add');
 
-  // Bind live filter triggers
-  ['tableSearchInput', 'filterClass', 'filterSource', 'filterStatus'].forEach(id => {
+  // Live search input listener
+  const searchInput = document.getElementById('tableSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', updateTableOnly);
+  }
+
+  // Criteria filter event listeners
+  ['filterClass', 'filterSource', 'filterStatus', 'filterFromDate', 'filterToDate'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.addEventListener('input', render);
-      el.addEventListener('change', render);
+      el.addEventListener('change', updateTableOnly);
+      el.addEventListener('input', updateTableOnly);
     }
   });
 
+  // Criteria search button
+  const btnSearchCriteria = document.getElementById('btnSearchCriteria');
+  if (btnSearchCriteria) {
+    btnSearchCriteria.addEventListener('click', e => {
+      e.preventDefault();
+      updateTableOnly();
+    });
+  }
+
+  // Reset filter button
   const btnReset = document.getElementById('btnResetFilters');
   if (btnReset) {
     btnReset.addEventListener('click', e => {
@@ -383,132 +922,292 @@ function render() {
           else el.value = '';
         }
       });
-      render();
+      updateTableOnly();
     });
   }
 
-  // Row Actions (View, Edit, Delete)
-  document.querySelectorAll('[data-action]').forEach(btn => {
-    btn.onclick = () => {
-      const row = btn.closest('tr');
-      const recordId = btn.dataset.id || (row ? row.dataset.id : null);
-      const action = btn.dataset.action;
-
-      if (action === 'delete') {
-        if (current === 'admission' && recordId && window.AdmissionModule) {
-          if (confirm(`Are you sure you want to delete enquiry ${recordId}?`)) {
-            AdmissionModule.deleteRecord(recordId);
-            render();
-          }
-        }
-      } else if (action === 'edit' || action === 'view') {
-        openModal(action, recordId);
-      }
-    };
-  });
-
-  if (window.ExportUtils) {
-    ExportUtils.bindExportButtons();
-  }
+  bindRowActions();
+  if (window.ExportUtils) ExportUtils.bindExportButtons();
 }
 
 /* ------------------------------------------------------------
    5. MODAL FORM BUILDER & HANDLERS
 ------------------------------------------------------------ */
-function formFields(type, recordData = {}) {
-  return fields(type).map((item, i) => {
-    const [label, placeholder] = item.split('|');
-    const fieldKey = label.replace(' *', '').replace(/\s+/g, '');
-    const isTextarea = /Description|Address|Note|Action/.test(label);
-    const isSelect   = /Select/.test(placeholder);
 
-    const getVal = () => {
-      if (type === 'admission') {
-        switch (fieldKey) {
-          case 'Name': return recordData.studentName || '';
-          case 'Phone': return recordData.phoneNumber || '';
-          case 'Email': return recordData.emailAddress || '';
-          case 'Address': return recordData.address || '';
-          case 'Description': return recordData.description || '';
-          case 'Note': return recordData.note || '';
-          case 'Date': return AdmissionModule ? AdmissionModule.formatInputDate(recordData.enquiryDate) : (recordData.enquiryDate || '');
-          case 'NextFollowUpDate': return AdmissionModule ? AdmissionModule.formatInputDate(recordData.nextFollowUpDate) : (recordData.nextFollowUpDate || '');
-          case 'Reference': return recordData.reference || '';
-          case 'Source': return recordData.source || '';
-          case 'Class': return recordData.studentClass || '';
-          default: return recordData[fieldKey] || '';
-        }
-      }
-      return recordData[fieldKey] || (Array.isArray(recordData) ? recordData[i] : '') || '';
-    };
+/** Retrieve a record from the correct module by ID */
+function getRecordById(mod, id) {
+  if (mod === 'admission'  && window.AdmissionModule)         return AdmissionModule.getById(id);
+  if (mod === 'visitor'    && window.VisitorModule)           return VisitorModule.getById(id);
+  if (mod === 'dispatch'   && window.PostalDispatchModule)     return PostalDispatchModule.getById(id);
+  if (mod === 'receive'    && window.PostalReceiveModule)      return PostalReceiveModule.getById(id);
+  if (mod === 'phone'      && window.PhoneLogModule)           return PhoneLogModule.getById(id);
+  if (mod === 'complaint'  && window.ComplainModule)           return ComplainModule.getById(id);
+  if (['purpose', 'complaintType', 'source', 'reference'].includes(mod)) return SetupFrontOfficeModule.getById(mod, id);
+  return null;
+}
 
-    const val = getVal();
-    let inputHtml = '';
+/** Build the modal form HTML for each module */
+function buildModalForm(mod, rec) {
+  const today = new Date().toISOString().split('T')[0];
+  rec = rec || {};
 
-    if (isTextarea) {
-      inputHtml = `<textarea data-field="${fieldKey}" placeholder="${placeholder}">${val}</textarea>`;
-    } else if (isSelect || fieldKey === 'Source' || fieldKey === 'Class') {
-      let optionsHtml = `<option value="">Select ${label.replace(' *','')}</option>`;
-      if (fieldKey === 'Source') {
-        const sources = ['Notice Board', 'via friend', 'Newspaper', 'Website', 'Walk In', 'Reference', 'Facebook', 'Instagram'];
-        optionsHtml = `<option value="">Select source</option>` + sources.map(s => `<option value="${s}" ${val.toLowerCase() === s.toLowerCase() ? 'selected' : ''}>${s}</option>`).join('');
-      } else if (fieldKey === 'Class') {
-        const classes = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'];
-        optionsHtml = `<option value="">Select class</option>` + classes.map(c => `<option value="${c}" ${val.toLowerCase() === c.toLowerCase() ? 'selected' : ''}>${c}</option>`).join('');
-      } else {
-        optionsHtml = `<option>${placeholder}</option><option ${val==='Active'?'selected':''}>Active</option><option ${val==='Pending'?'selected':''}>Pending</option><option ${val==='Closed'?'selected':''}>Closed</option>`;
-      }
-      inputHtml = `<select data-field="${fieldKey}">${optionsHtml}</select>`;
-    } else if (/Date/.test(label)) {
-      inputHtml = `<input type="date" data-field="${fieldKey}" placeholder="${placeholder}" value="${val}">`;
+  const field = (label, id, type, val, opts) => {
+    const req  = label.endsWith('*') ? ' required' : '';
+    const lbl  = label.replace(' *', '');
+    const wide = /Description|Address|Note|Action/.test(lbl) ? ' wide' : '';
+    let inp;
+    if (type === 'textarea') {
+      inp = `<textarea data-field="${id}" placeholder="${opts||''}"${req}>${val||''}</textarea>`;
+    } else if (type === 'select') {
+      const options = opts.map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('');
+      inp = `<select data-field="${id}"${req}><option value="">Select ${lbl}</option>${options}</select>`;
     } else {
-      inputHtml = `<input data-field="${fieldKey}" placeholder="${placeholder}" value="${val}">`;
+      inp = `<input type="${type}" data-field="${id}" placeholder="${opts||''}" value="${val||''}"${req}>`;
     }
+    return `<div class="form-field${wide}"><label>${lbl}${req?' <span style="color:#ef4444">*</span>':''}</label>${inp}</div>`;
+  };
 
-    return `<div class="form-field ${isTextarea ? 'wide' : ''}">
-      <label>${label}</label>
-      ${inputHtml}
-    </div>`;
-  }).join('');
+  const sources   = ['Notice Board','via friend','Newspaper','Website','Walk In','Reference'];
+  const classes   = ['Class 1','Class 2','Class 3','Class 4','Class 5'];
+  const purposes  = ['Student Enquiry','Parent Meeting','Meeting Principal','Staff Meeting','Official Work','Other'];
+  const callTypes = ['Incoming','Outgoing','Missed'];
+  const postTypes = ['Letter','Parcel','Notice','Courier','Other'];
+  const compTypes = ['Infrastructure','Behaviour','Academic','Administration','Staff','General','Other'];
+  const compSrcs  = ['Parent','Student','Staff','Anonymous','Written','Other'];
+
+  if (mod === 'admission') {
+    const fmtIn = d => AdmissionModule ? AdmissionModule.formatInputDate(d) : (d||'');
+    return [
+      field('Student Name *',   'studentName',     'text',     rec.studentName,     'Enter student name'),
+      field('Phone Number *',   'phoneNumber',     'tel',      rec.phoneNumber,      'Enter phone number'),
+      field('Email',            'emailAddress',    'email',    rec.emailAddress,     'Enter email'),
+      field('Class',            'studentClass',    'select',   rec.studentClass,     classes),
+      field('Purpose',          'purpose',         'select',   rec.purpose,          ['Admission','Scholarship','Transport','Hostel','General Inquiry']),
+      field('Source *',         'source',          'select',   rec.source,           sources),
+      field('Reference',        'reference',       'text',     rec.reference,        'Reference name'),
+      field('Enquiry Date',     'enquiryDate',     'date',     fmtIn(rec.enquiryDate)||today, ''),
+      field('Next Follow Up',   'nextFollowUpDate','date',     fmtIn(rec.nextFollowUpDate)||today, ''),
+      field('Status',           'status',          'select',   rec.status||'Active', ['Active','Pending','Closed']),
+      field('Address',          'address',         'textarea', rec.address,          'Enter address'),
+      field('Description',      'description',     'textarea', rec.description,      'Enter description')
+    ].join('');
+  }
+
+  if (mod === 'visitor') {
+    return [
+      field('Purpose *',         'visitorPurpose', 'select',   rec.purpose||'Student Enquiry', purposes),
+      field('Meeting With',      'meetingWith',    'text',     rec.meetingWith, 'e.g. Staff (Avantika Singh - 101)'),
+      field('Visitor Name *',    'visitorName',    'text',     rec.name,        'Enter visitor name'),
+      field('Phone *',           'visitorPhone',   'tel',      rec.phone,       'Enter phone number'),
+      field('ID Card / Proof',   'idProof',        'text',     rec.idProof,     'e.g. Aadhaar 1234, PAN, —'),
+      field('Number Of Persons', 'noOfPerson',     'number',   rec.noOfPerson ?? '0', '0'),
+      field('Date *',            'visitorDate',    'date',     rec.date||today, ''),
+      field('In Time',           'inTime',         'text',     rec.inTime||'04:46 PM',      '04:46 PM'),
+      field('Out Time',          'outTime',        'text',     rec.outTime||'04:46 PM',     '04:46 PM'),
+      field('Address',           'visitorAddress', 'textarea', rec.address,     'Enter address'),
+      field('Note',              'visitorNote',    'textarea', rec.note,        'Additional notes')
+    ].join('');
+  }
+
+  if (mod === 'dispatch') {
+    return [
+      field('To Title *',      'toTitle',      'text',     rec.toTitle,     'Receiver name / title'),
+      field('Reference No.',   'referenceNo',  'text',     rec.referenceNo, 'Reference number'),
+      field('From Title',      'fromTitle',    'text',     rec.fromTitle||'School Office', 'Sender'),
+      field('Date *',          'dispatchDate', 'date',     rec.date||today, ''),
+      field('Type',            'dispatchType', 'select',   rec.type||'Letter', postTypes),
+      field('Address *',       'address',      'textarea', rec.address,     'Receiver address'),
+      field('Note',            'note',         'textarea', rec.note,        'Additional notes')
+    ].join('');
+  }
+
+  if (mod === 'receive') {
+    return [
+      field('From Title *',    'fromTitle',    'text',     rec.fromTitle,   'Sender name / title'),
+      field('Reference No.',   'referenceNo',  'text',     rec.referenceNo, 'Reference number'),
+      field('Date *',          'receiveDate',  'date',     rec.date||today, ''),
+      field('Type',            'receiveType',  'select',   rec.type||'Letter', postTypes),
+      field('Address',         'address',      'textarea', rec.address,     'Sender address'),
+      field('Note',            'note',         'textarea', rec.note,        'Additional notes')
+    ].join('');
+  }
+
+  if (mod === 'phone') {
+    return [
+      field('Caller Name *',   'callerName',   'text',     rec.name,         'Enter caller name'),
+      field('Phone *',         'callerPhone',  'tel',      rec.phone,        'Enter phone number'),
+      field('Date *',          'callDate',     'date',     rec.date||today,  ''),
+      field('Follow Up Date',  'followUpDate', 'date',     rec.followUpDate, ''),
+      field('Call Type',       'callType',     'select',   rec.callType||'Incoming', callTypes),
+      field('Duration',        'callDuration', 'text',     rec.duration,     'e.g. 5 min'),
+      field('Description *',   'callDesc',     'textarea', rec.description,  'Call purpose / discussion'),
+      field('Note',            'callNote',     'textarea', rec.note,         'Additional notes')
+    ].join('');
+  }
+
+  if (mod === 'complaint') {
+    return [
+      field('Complain By *',   'complainBy',     'text',     rec.complainBy,  'Enter complainant name'),
+      field('Phone',           'complainPhone',  'tel',      rec.phone,       'Enter phone number'),
+      field('Date *',          'complainDate',   'date',     rec.date||today, ''),
+      field('Type *',          'complainType',   'select',   rec.type,        compTypes),
+      field('Source',          'complainSource', 'select',   rec.source,      compSrcs),
+      field('Assigned To',     'assigned',       'text',     rec.assigned,    'e.g. Principal'),
+      field('Description *',   'complainDesc',   'textarea', rec.description, 'Describe the complaint'),
+      field('Action Taken',    'actionTaken',    'textarea', rec.actionTaken, 'What action was taken')
+    ].join('');
+  }
+
+  if (mod === 'purpose') {
+    return [
+      field('Purpose *',   'name',        'text',     rec.name,        'Enter purpose name'),
+      field('Description', 'description', 'textarea', rec.description, 'Enter description')
+    ].join('');
+  }
+
+  if (mod === 'complaintType') {
+    return [
+      field('Complaint Type *', 'name',        'text',     rec.name,        'Enter complaint type'),
+      field('Description',      'description', 'textarea', rec.description, 'Enter description')
+    ].join('');
+  }
+
+  if (mod === 'source') {
+    return [
+      field('Source *',    'name',        'text',     rec.name,        'Enter source name'),
+      field('Description', 'description', 'textarea', rec.description, 'Enter description')
+    ].join('');
+  }
+
+  if (mod === 'reference') {
+    return [
+      field('Reference Name *', 'name',        'text',     rec.name,        'Enter reference name'),
+      field('Contact',          'contact',     'text',     rec.contact,     'Phone or email'),
+      field('Description',      'description', 'textarea', rec.description, 'Enter description')
+    ].join('');
+  }
+
+  return '<p style="color:#8994a7;padding:16px;">Form not available for this module.</p>';
+}
+
+/** Read form fields and save to the correct module */
+function saveCurrentModule(editId) {
+  const f = id => document.querySelector(`[data-field="${id}"]`)?.value?.trim() || '';
+
+  if (current === 'admission' && window.AdmissionModule) {
+    return AdmissionModule.saveRecord({
+      studentName:      f('studentName'),
+      phoneNumber:      f('phoneNumber'),
+      emailAddress:     f('emailAddress'),
+      studentClass:     f('studentClass'),
+      purpose:          f('purpose'),
+      source:           f('source'),
+      reference:        f('reference'),
+      enquiryDate:      f('enquiryDate'),
+      nextFollowUpDate: f('nextFollowUpDate'),
+      status:           f('status'),
+      address:          f('address'),
+      description:      f('description')
+    }, editId);
+  }
+
+  if (current === 'visitor' && window.VisitorModule) {
+    return VisitorModule.saveRecord({
+      name:        f('visitorName'),
+      phone:       f('visitorPhone'),
+      purpose:     f('visitorPurpose'),
+      meetingWith: f('meetingWith'),
+      noOfPerson:  f('noOfPerson') || '0',
+      idProof:     f('idProof') || '—',
+      date:        f('visitorDate'),
+      inTime:      f('inTime'),
+      outTime:     f('outTime'),
+      address:     f('visitorAddress'),
+      note:        f('visitorNote')
+    }, editId);
+  }
+
+  if (current === 'dispatch' && window.PostalDispatchModule) {
+    return PostalDispatchModule.saveRecord({
+      toTitle:     f('toTitle'),
+      referenceNo: f('referenceNo'),
+      fromTitle:   f('fromTitle'),
+      date:        f('dispatchDate'),
+      type:        f('dispatchType'),
+      address:     f('address'),
+      note:        f('note')
+    }, editId);
+  }
+
+  if (current === 'receive' && window.PostalReceiveModule) {
+    return PostalReceiveModule.saveRecord({
+      fromTitle:   f('fromTitle'),
+      referenceNo: f('referenceNo'),
+      date:        f('receiveDate'),
+      type:        f('receiveType'),
+      address:     f('address'),
+      note:        f('note')
+    }, editId);
+  }
+
+  if (current === 'phone' && window.PhoneLogModule) {
+    return PhoneLogModule.saveRecord({
+      name:         f('callerName'),
+      phone:        f('callerPhone'),
+      date:         f('callDate'),
+      followUpDate: f('followUpDate'),
+      callType:     f('callType'),
+      duration:     f('callDuration'),
+      description:  f('callDesc'),
+      note:         f('callNote')
+    }, editId);
+  }
+
+  if (current === 'complaint' && window.ComplainModule) {
+    return ComplainModule.saveRecord({
+      complainBy:  f('complainBy'),
+      phone:       f('complainPhone'),
+      date:        f('complainDate'),
+      type:        f('complainType'),
+      source:      f('complainSource'),
+      assigned:    f('assigned'),
+      description: f('complainDesc'),
+      actionTaken: f('actionTaken')
+    }, editId);
+  }
+
+  if (['purpose', 'complaintType', 'source', 'reference'].includes(current)) {
+    return SetupFrontOfficeModule.saveRecord(current, {
+      name:        f('name'),
+      contact:     f('contact'),
+      description: f('description')
+    }, editId);
+  }
+
+  throw new Error('Module not supported yet.');
 }
 
 function openModal(mode, recordId) {
-  const isView = mode === 'view';
   editingRecordId = (mode === 'edit') ? recordId : null;
 
-  const labels = { admission: 'Admission Enquiry', visitor: 'Visitor', dispatch: 'Postal Dispatch', receive: 'Postal Receive', phone: 'Phone Call Log', complaint: 'Complaint' };
+  const labels = {
+    admission: 'Admission Enquiry', visitor: 'Visitor', dispatch: 'Postal Dispatch',
+    receive: 'Postal Receive', phone: 'Phone Call Log', complaint: 'Complaint',
+    purpose: 'Purpose', complaintType: 'Complaint Type', source: 'Source', reference: 'Reference'
+  };
   const lbl = labels[current] || title(current);
-  const act = isView ? 'View' : mode === 'edit' ? 'Edit' : 'Add';
+  const act = mode === 'edit' ? 'Edit' : (mode === 'view' ? 'View' : 'Add');
 
   $('#modalTitle').textContent = `${act} ${lbl}`;
-  $('#modalSub').textContent   = isView ? 'Record details and activity' : mode === 'edit' ? 'Update the selected record' : 'Capture details for school records';
-  $('#saveText').textContent   = isView ? 'Close' : `${mode === 'edit' ? 'Update' : 'Save'} ${lbl}`;
+  $('#modalSub').textContent   = mode === 'edit' ? 'Update the selected record' : (mode === 'view' ? 'Record Details' : 'Fill in the details below');
+  $('#saveText').textContent   = mode === 'edit' ? `Update ${lbl}` : `Save ${lbl}`;
 
-  let recordObj = {};
-  if (recordId && window.AdmissionModule && current === 'admission') {
-    recordObj = AdmissionModule.getById(recordId) || {};
-  }
+  const rec = recordId ? getRecordById(current, recordId) : null;
+  $('#formFields').innerHTML = buildModalForm(current, rec);
 
-  if (isView) {
-    const details = [
-      ['Student Name', recordObj.studentName || '—'],
-      ['Phone Number', recordObj.phoneNumber || '—'],
-      ['Source', recordObj.source || '—'],
-      ['Enquiry Date', recordObj.enquiryDate || '—'],
-      ['Next Follow Up', recordObj.nextFollowUpDate || '—'],
-      ['Status', recordObj.status || 'Active'],
-      ['Email', recordObj.emailAddress || '—'],
-      ['Class', recordObj.studentClass || '—'],
-      ['Reference', recordObj.reference || '—'],
-      ['Address', recordObj.address || '—'],
-      ['Description', recordObj.description || '—']
-    ];
-
-    $('#formFields').innerHTML = details.map(([key, val]) =>
-      `<div class="detail-item ${/Address|Description|Note|Action/.test(key)?'wide':''}"><span>${key}</span><strong>${val || '—'}</strong></div>`
-    ).join('');
-  } else {
-    $('#formFields').innerHTML = formFields(current, recordObj);
+  const saveBtn = $('#recordForm button[type="submit"]');
+  if (saveBtn) {
+    saveBtn.style.display = (mode === 'view') ? 'none' : 'inline-flex';
   }
 
   $('#recordModal').classList.add('show');
@@ -589,7 +1288,7 @@ document.addEventListener('click', e => {
   }
 
   // Navigation Item Clicks
-  const subItem = e.target.closest('.nav-sub-item[data-view]');
+  const subItem = e.target.closest('.nav-sub-item[data-view], .setup-tabs [data-view]');
   if (subItem) {
     e.preventDefault();
     setActiveView(subItem.dataset.view);
@@ -609,38 +1308,13 @@ document.addEventListener('click', e => {
 // Modal Form Submit Event
 $('#recordForm').addEventListener('submit', e => {
   e.preventDefault();
-
-  if (current === 'admission' && window.AdmissionModule) {
-    const formData = {};
-    document.querySelectorAll('#formFields [data-field]').forEach(input => {
-      formData[input.dataset.field] = input.value.trim();
-    });
-
-    try {
-      AdmissionModule.saveRecord({
-        studentName: formData.Name || formData.StudentName,
-        phoneNumber: formData.Phone || formData.PhoneNumber,
-        emailAddress: formData.Email || '',
-        purpose: formData.Purpose || 'Admission',
-        source: formData.Source || 'Notice Board',
-        reference: formData.Reference || 'Self',
-        enquiryDate: formData.Date || '',
-        nextFollowUpDate: formData.NextFollowUpDate || '',
-        status: formData.Status || 'Active',
-        studentClass: formData.Class || '',
-        address: formData.Address || '',
-        description: formData.Description || ''
-      }, editingRecordId);
-
-      render();
-      closeModal();
-    } catch (err) {
-      alert(err.message);
-    }
-    return;
+  try {
+    saveCurrentModule(editingRecordId);
+    closeModal();
+    updateTableOnly();
+  } catch (err) {
+    alert(err.message || 'Error saving record');
   }
-
-  closeModal();
 });
 
 // Toggle Sidebar (Desktop & Mobile)
@@ -680,3 +1354,4 @@ if (location.hash !== '#' + current) {
 
 updateSidebarActiveStyles();
 render();
+

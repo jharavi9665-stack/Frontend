@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitor Book – School ERP</title>
+  <link rel="icon" type="image/png" href="../../assets/images/front-office/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Base layout (sidebar, topbar, workspace) -->
+  <link rel="stylesheet" href="../../css/dashboard/dashboard.css">
+  <!-- Shared Front Office styles (modal, form grid, table helpers) -->
+  <link rel="stylesheet" href="../../css/front-office/front-office.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ===== SIDEBAR (populated by sidebar-template.js) ===== -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- ===== WORKSPACE ===== -->
+  <section class="workspace">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+        <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+          <path d="M1 1h16M1 7h16M1 13h16" stroke="#56647b" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="header-brand" onclick="window.location.href='../../pages/dashboard/index.html'" style="cursor:pointer;">
+        <div class="hb-logo-box">
+          <img src="../../assets/images/branding/school-logo.png" alt="School Logo" class="hb-logo-img">
+        </div>
+        <div class="hb-text">
+          <span class="hb-name">Devryon</span>
+          <span class="hb-sub">Demo School</span>
+        </div>
+      </div>
+      <div class="header-search">
+        <svg class="search-svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#9ba8bc" stroke-width="1.6"/>
+          <path d="M10.5 10.5L14 14" stroke="#9ba8bc" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input type="search" placeholder="Search...">
+      </div>
+      <div class="top-actions">
+        <div class="user-profile">
+          <div class="user-avatar-wrap">
+            <img class="user-avatar" src="../../assets/images/auth/login-hero.jpg" alt="Admin">
+            <span class="user-online-dot"></span>
+          </div>
+          <div class="user-info">
+            <span class="user-name">Raj Yadav</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="page">
+
+      <!-- Header Card -->
+      <section class="visitor-header-card">
+        <div class="visitor-header-left">
+          <div class="visitor-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="visitor-title-box">
+            <h2>Visitor List</h2>
+            <p>View and manage all visitors who have visited the school.</p>
+          </div>
+        </div>
+        <button class="btn-add-visitor" id="openAddModal" type="button">
+          <span>+</span> Add Visitor
+        </button>
+      </section>
+
+      <!-- Filter / Search Bar Card -->
+      <section class="visitor-filter-card">
+        <div class="visitor-search-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input id="tableSearchInput" placeholder="Search by visitor name, purpose, meeting with...">
+        </div>
+
+        <div class="visitor-purpose-select-wrap">
+          <select id="filterPurpose">
+            <option value="">All Purpose</option>
+            <option value="Student Enquiry">Student Enquiry</option>
+            <option value="Parent Meeting">Parent Meeting</option>
+            <option value="Meeting Principal">Meeting Principal</option>
+            <option value="Staff Meeting">Staff Meeting</option>
+            <option value="Official Work">Official Work</option>
+            <option value="Other">Other</option>
+          </select>
+          <svg class="select-caret" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="filter-funnel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </div>
+
+        <div class="visitor-date-range-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <input type="text" id="filterDateRange" placeholder="Select Date Range" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+        </div>
+
+        <button class="btn-visitor-reset" id="btnResetFilters" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Reset
+        </button>
+      </section>
+
+      <!-- Table Card -->
+      <section class="visitor-table-card">
+        <div class="visitor-table-toolbar">
+          <div class="show-entries-wrap">
+            <span>Show</span>
+            <select id="perPageSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+            <span>entries</span>
+          </div>
+          <div class="table-actions-right">
+            <button class="btn-export-main" title="Export">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export
+            </button>
+            <button class="tool-icon-btn export" title="Export Excel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+            </button>
+            <button class="tool-icon-btn export" title="Export PDF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M10 12h4"/><path d="M10 16h4"/></svg>
+            </button>
+            <button class="tool-icon-btn export" title="Print">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </button>
+            <button class="tool-icon-btn export" title="Columns">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/><path d="M18 9l3 3-3 3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap" style="overflow-x: auto;">
+          <table class="visitor-table" id="visitorTable">
+            <thead>
+              <tr>
+                <th>Purpose <span class="sort-icon">↕</span></th>
+                <th>Meeting With <span class="sort-icon">↕</span></th>
+                <th>Visitor Name <span class="sort-icon">↕</span></th>
+                <th>Phone <span class="sort-icon">↕</span></th>
+                <th>ID Card <span class="sort-icon">↕</span></th>
+                <th>Number Of Person <span class="sort-icon">↕</span></th>
+                <th>Date <span class="sort-icon">↕</span></th>
+                <th>In Time <span class="sort-icon">↕</span></th>
+                <th>Out Time <span class="sort-icon">↕</span></th>
+                <th style="text-align:center;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated by visitor.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="visitor-pagination-bar">
+          <span class="pagination-info">Showing 1 to 3 of 3 entries</span>
+          <div class="pages" style="display:flex;gap:4px;">
+            <button class="visitor-page-btn" type="button">‹</button>
+            <button class="visitor-page-btn" type="button">1</button>
+            <button class="visitor-page-btn active" type="button">2</button>
+            <button class="visitor-page-btn" type="button">›</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Tip Banner -->
+      <section class="visitor-tip-banner">
+        <div class="visitor-tip-left">
+          <div class="tip-info-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <span><strong>Tip:</strong> You can export the visitor list in Excel, PDF or print it for your records.</span>
+        </div>
+        <div class="visitor-tip-graphic">
+          <svg width="40" height="34" viewBox="0 0 48 40" fill="none">
+            <rect x="6" y="6" width="22" height="28" rx="3" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+            <rect x="11" y="2" width="12" height="6" rx="2" fill="#818cf8"/>
+            <line x1="11" y1="14" x2="23" y2="14" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="11" y1="19" x2="23" y2="19" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="11" y1="24" x2="18" y2="24" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M36 12l8 4v8c0 7-8 12-8 12s-8-5-8-12v-8l8-4z" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+            <path d="M33 22l2.5 2.5 5.5-5.5" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+
+    </main>
+  </section>
+</div>
+
+<!-- ===== ADD / EDIT VISITOR MODAL ===== -->
+<div class="modal" id="visitorModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <span class="modal-icon">👤</span>
+        <span>
+          <strong>Add Visitor</strong>
+          <small>Fill in visitor details below</small>
+        </span>
+      </div>
+      <button class="modal-close" data-close-modal="visitorModal" aria-label="Close">×</button>
+    </div>
+    <form id="visitorForm">
+      <div class="modal-body">
+        <div class="fo-form-grid">
+          <div class="fo-form-field">
+            <label>Purpose *</label>
+            <select id="visitorPurpose" required>
+              <option value="">Select Purpose</option>
+              <option value="Student Enquiry" selected>Student Enquiry</option>
+              <option value="Parent Meeting">Parent Meeting</option>
+              <option value="Meeting Principal">Meeting Principal</option>
+              <option value="Staff Meeting">Staff Meeting</option>
+              <option value="Official Work">Official Work</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="fo-form-field">
+            <label>Meeting With</label>
+            <input type="text" id="meetingWith" placeholder="e.g. Staff (Avantika Singh - 101)">
+          </div>
+          <div class="fo-form-field">
+            <label>Visitor Name *</label>
+            <input type="text" id="visitorName" placeholder="Enter visitor name" required>
+          </div>
+          <div class="fo-form-field">
+            <label>Phone Number *</label>
+            <input type="tel" id="visitorPhone" placeholder="Enter phone number" required>
+          </div>
+          <div class="fo-form-field">
+            <label>ID Card / Proof</label>
+            <input type="text" id="idProof" placeholder="e.g. Aadhaar 1234, PAN, —">
+          </div>
+          <div class="fo-form-field">
+            <label>Number Of Persons</label>
+            <input type="number" id="noOfPerson" placeholder="0" min="0" value="0">
+          </div>
+          <div class="fo-form-field">
+            <label>Date *</label>
+            <input type="date" id="visitorDate" required>
+          </div>
+          <div class="fo-form-field">
+            <label>In Time</label>
+            <input type="text" id="inTime" placeholder="e.g. 04:46 PM" value="04:46 PM">
+          </div>
+          <div class="fo-form-field">
+            <label>Out Time</label>
+            <input type="text" id="outTime" placeholder="e.g. 04:46 PM" value="04:46 PM">
+          </div>
+          <div class="fo-form-field wide">
+            <label>Address</label>
+            <textarea id="visitorAddress" placeholder="Enter address"></textarea>
+          </div>
+          <div class="fo-form-field wide">
+            <label>Note</label>
+            <textarea id="visitorNote" placeholder="Additional notes"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" data-close-modal="visitorModal">Cancel</button>
+        <button type="submit" class="btn primary">▣ &nbsp;Save Visitor&nbsp;→</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== VIEW VISITOR DETAILS MODAL ===== -->
+<div class="modal" id="viewVisitorModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <span class="modal-icon">👁</span>
+        <span>
+          <strong>Visitor Details</strong>
+          <small>Complete visitor information</small>
+        </span>
+      </div>
+      <button class="modal-close" data-close-modal="viewVisitorModal" onclick="closeModal('viewVisitorModal')" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="viewModalBody">
+      <!-- Populated dynamically -->
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn ghost" onclick="closeModal('viewVisitorModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="../../js/common/storage-utils.js"></script>
+<script src="../../js/common/export-utils.js"></script>
+<script src="../../js/front-office/sidebar-template.js"></script>
+<script src="../../js/front-office/front-office.js"></script>
+<script src="../../js/front-office/visitor.js"></script>
+</body>
+</html>

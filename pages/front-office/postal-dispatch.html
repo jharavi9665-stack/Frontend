@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Postal Dispatch – School ERP</title>
+  <link rel="icon" type="image/png" href="../../assets/images/front-office/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/dashboard/dashboard.css">
+  <link rel="stylesheet" href="../../css/front-office/front-office.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- ===== WORKSPACE ===== -->
+  <section class="workspace">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+        <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+          <path d="M1 1h16M1 7h16M1 13h16" stroke="#56647b" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="header-brand" onclick="window.location.href='../../pages/dashboard/index.html'" style="cursor:pointer;">
+        <div class="hb-logo-box">
+          <img src="../../assets/images/branding/school-logo.png" alt="School Logo" class="hb-logo-img">
+        </div>
+        <div class="hb-text">
+          <span class="hb-name">Devryon</span>
+          <span class="hb-sub">Demo School</span>
+        </div>
+      </div>
+      <div class="header-search">
+        <svg class="search-svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#9ba8bc" stroke-width="1.6"/>
+          <path d="M10.5 10.5L14 14" stroke="#9ba8bc" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input type="search" placeholder="Search...">
+      </div>
+      <div class="top-actions">
+        <div class="user-profile">
+          <div class="user-avatar-wrap">
+            <img class="user-avatar" src="../../assets/images/auth/login-hero.jpg" alt="Admin">
+            <span class="user-online-dot"></span>
+          </div>
+          <div class="user-info">
+            <span class="user-name">Raj Yadav</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="page">
+
+      <section class="list-card">
+        <div class="card-heading">
+          <div class="section-title-wrap">
+            <span class="orange-accent-bar"></span>
+            <span class="section-title-text">Postal Dispatch</span>
+          </div>
+          <button class="btn primary" id="openAddModal">+ Add Dispatch</button>
+        </div>
+
+        <div class="table-tools">
+          <div class="search-input-wrap">
+            <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input id="tableSearchInput" placeholder="Search by receiver, reference or type...">
+          </div>
+          <div class="tool-actions">
+            <div class="export-icon-group">
+              <button class="export" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+              <button class="export" title="Export Excel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></button>
+              <button class="export" title="Export CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button>
+              <button class="export" title="Export PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M10 12h4"/><path d="M10 16h4"/></svg></button>
+              <button class="export" title="Print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="dispatchTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>To Title <span class="sort-icon">↕</span></th>
+                <th>Reference No. <span class="sort-icon">↕</span></th>
+                <th>From <span class="sort-icon">↕</span></th>
+                <th>Type <span class="sort-icon">↕</span></th>
+                <th>Date <span class="sort-icon">↕</span></th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated by postal-dispatch.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <span>Showing 0 entries</span>
+          <div class="pages">
+            <button class="page-nav">‹</button>
+            <button class="current">1</button>
+            <button class="page-nav">›</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </section>
+</div>
+
+<!-- ===== ADD / EDIT POSTAL DISPATCH MODAL ===== -->
+<div class="modal" id="dispatchModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <span class="modal-icon">📬</span>
+        <span>
+          <strong>Add Postal Dispatch</strong>
+          <small>Fill in dispatch details below</small>
+        </span>
+      </div>
+      <button class="modal-close" data-close-modal="dispatchModal" aria-label="Close">×</button>
+    </div>
+    <form id="dispatchForm">
+      <div class="modal-body">
+        <div class="fo-form-grid">
+          <div class="fo-form-field">
+            <label>To Title *</label>
+            <input type="text" id="toTitle" placeholder="Enter receiver name / title" required>
+          </div>
+          <div class="fo-form-field">
+            <label>Reference No.</label>
+            <input type="text" id="referenceNo" placeholder="Enter reference number">
+          </div>
+          <div class="fo-form-field">
+            <label>From Title</label>
+            <input type="text" id="fromTitle" value="School Office" placeholder="Sender / From">
+          </div>
+          <div class="fo-form-field">
+            <label>Date *</label>
+            <input type="date" id="dispatchDate" required>
+          </div>
+          <div class="fo-form-field">
+            <label>Type</label>
+            <select id="dispatchType">
+              <option>Letter</option>
+              <option>Parcel</option>
+              <option>Notice</option>
+              <option>Courier</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fo-form-field wide">
+            <label>Address *</label>
+            <textarea id="address" placeholder="Enter receiver address" required></textarea>
+          </div>
+          <div class="fo-form-field wide">
+            <label>Note</label>
+            <textarea id="note" placeholder="Additional notes"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" data-close-modal="dispatchModal">Cancel</button>
+        <button type="submit" class="btn primary">▣ &nbsp;Save Dispatch&nbsp;→</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="../../js/common/storage-utils.js"></script>
+<script src="../../js/common/export-utils.js"></script>
+<script src="../../js/front-office/sidebar-template.js"></script>
+<script src="../../js/front-office/front-office.js"></script>
+<script src="../../js/front-office/postal-dispatch.js"></script>
+</body>
+</html>

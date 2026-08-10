@@ -9,7 +9,11 @@ const STORAGE_KEYS = {
   PHONE_LOG: 'school_erp_phone_logs',
   POSTAL_DISPATCH: 'school_erp_postal_dispatch',
   POSTAL_RECEIVE: 'school_erp_postal_receive',
-  COMPLAINTS: 'school_erp_complaints'
+  COMPLAINTS: 'school_erp_complaints',
+  PURPOSE: 'school_erp_purposes',
+  COMPLAINT_TYPE: 'school_erp_complaint_types',
+  SOURCE: 'school_erp_sources',
+  REFERENCE: 'school_erp_references'
 };
 
 const StorageUtils = {

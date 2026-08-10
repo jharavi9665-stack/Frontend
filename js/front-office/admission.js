@@ -100,34 +100,66 @@ const AdmissionModule = {
   },
 
   /**
+   * Helper: Parse Date string into Date object
+   */
+  parseDate(dateStr) {
+    if (!dateStr || dateStr === '—') return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(dateStr);
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      if (parts[0].length === 4) return new Date(dateStr);
+      return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    }
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+  },
+
+  /**
    * Get all admission records from LocalStorage with optional filters
    */
   getRecords(filters = {}) {
     const allRecords = StorageUtils.get(this.storageKey, this.initialData);
     const { query = '', studentClass = '', source = '', status = '', fromDate = '', toDate = '' } = filters;
 
+    const fromTime = fromDate ? new Date(fromDate).setHours(0, 0, 0, 0) : null;
+    const toTime   = toDate ? new Date(toDate).setHours(23, 59, 59, 999) : null;
+
     return allRecords.filter(r => {
       // Search Query Filter
       if (query) {
         const q = query.toLowerCase();
-        const matchName = (r.studentName || '').toLowerCase().includes(q);
-        const matchPhone = (r.phoneNumber || '').toLowerCase().includes(q);
-        const matchSource = (r.source || '').toLowerCase().includes(q);
-        const matchId = (r.id || '').toLowerCase().includes(q);
-        if (!matchName && !matchPhone && !matchSource && !matchId) return false;
+        const matchName    = (r.studentName || '').toLowerCase().includes(q);
+        const matchPhone   = (r.phoneNumber || '').toLowerCase().includes(q);
+        const matchEmail   = (r.emailAddress || '').toLowerCase().includes(q);
+        const matchSource  = (r.source || '').toLowerCase().includes(q);
+        const matchRef     = (r.reference || '').toLowerCase().includes(q);
+        const matchClass   = (r.studentClass || '').toLowerCase().includes(q);
+        const matchPurpose = (r.purpose || '').toLowerCase().includes(q);
+        const matchDesc    = (r.description || '').toLowerCase().includes(q);
+        const matchId      = (r.id || '').toLowerCase().includes(q);
+        if (!matchName && !matchPhone && !matchEmail && !matchSource && !matchRef && !matchClass && !matchPurpose && !matchDesc && !matchId) return false;
       }
       // Class Filter
       if (studentClass && studentClass !== 'Select Class') {
-        if ((r.studentClass || '') !== studentClass) return false;
+        if ((r.studentClass || '').toLowerCase() !== studentClass.toLowerCase()) return false;
       }
       // Source Filter
       if (source && source !== 'Select Source') {
         if ((r.source || '').toLowerCase() !== source.toLowerCase()) return false;
       }
       // Status Filter
-      if (status && status !== 'All Status' && status !== '● Active') {
-        const statusClean = status.replace(/[●\s]/g, '');
-        if ((r.status || '').toLowerCase() !== statusClean.toLowerCase()) return false;
+      if (status && status !== 'All Status') {
+        const statusClean = status.replace(/[●\s]/g, '').toLowerCase();
+        if ((r.status || '').toLowerCase() !== statusClean) return false;
+      }
+      // Date Range Filter (Enquiry Date)
+      if (fromTime || toTime) {
+        const recordDate = this.parseDate(r.enquiryDate);
+        if (recordDate) {
+          const recTime = recordDate.getTime();
+          if (fromTime && recTime < fromTime) return false;
+          if (toTime && recTime > toTime) return false;
+        }
       }
       return true;
     });
@@ -245,7 +277,11 @@ const AdmissionModule = {
 
 window.AdmissionModule = AdmissionModule;
 
-/* Standalone Page Initialization for admission.html */
+/* ============================================================
+   Standalone Page Initialization for admission.html
+   Works with the new app-shell layout (dashboard.css).
+   Modal uses class "open" (aligned with front-office.css).
+============================================================ */
 let currentEditId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -255,32 +291,46 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initAdmissionStandalonePage() {
+  // Seed initial data if localStorage is empty
   StorageUtils.get(AdmissionModule.storageKey, AdmissionModule.initialData);
 
-  const form = document.getElementById('admissionForm');
+  // Open modal button
   const openBtn = document.getElementById('openAddModal');
-  const closeBtns = document.querySelectorAll('.close-btn');
-
   if (openBtn) openBtn.addEventListener('click', openAddModal);
-  closeBtns.forEach(btn => btn.addEventListener('click', closeAdmissionModal));
 
+  // Close buttons (× in header and Cancel in footer)
+  const closeAdmissionBtn = document.getElementById('closeAdmissionModal');
+  const cancelAdmissionBtn = document.getElementById('cancelAdmissionModal');
+  if (closeAdmissionBtn) closeAdmissionBtn.addEventListener('click', closeAdmissionModal);
+  if (cancelAdmissionBtn) cancelAdmissionBtn.addEventListener('click', closeAdmissionModal);
+
+  // Close when clicking backdrop
+  const modal = document.getElementById('addModal');
+  if (modal) {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeAdmissionModal();
+    });
+  }
+
+  // Form submit
+  const form = document.getElementById('admissionForm');
   if (form) {
     form.addEventListener('submit', e => {
       e.preventDefault();
       try {
         const formData = {
-          studentName: document.getElementById('studentName')?.value.trim(),
-          phoneNumber: document.getElementById('phoneNumber')?.value.trim(),
-          emailAddress: document.getElementById('emailAddress')?.value.trim(),
-          studentClass: document.getElementById('studentClass')?.value,
-          purpose: document.getElementById('purpose')?.value,
-          source: document.getElementById('source')?.value,
-          reference: document.getElementById('reference')?.value.trim(),
-          enquiryDate: document.getElementById('enquiryDate')?.value,
+          studentName:     document.getElementById('studentName')?.value.trim(),
+          phoneNumber:     document.getElementById('phoneNumber')?.value.trim(),
+          emailAddress:    document.getElementById('emailAddress')?.value.trim(),
+          studentClass:    document.getElementById('studentClass')?.value,
+          purpose:         document.getElementById('purpose')?.value,
+          source:          document.getElementById('source')?.value,
+          reference:       document.getElementById('reference')?.value.trim(),
+          enquiryDate:     document.getElementById('enquiryDate')?.value,
           nextFollowUpDate: document.getElementById('nextFollowUpDate')?.value,
-          status: document.getElementById('status')?.value,
-          address: document.getElementById('address')?.value.trim(),
-          description: document.getElementById('description')?.value.trim()
+          status:          document.getElementById('status')?.value,
+          address:         document.getElementById('address')?.value.trim(),
+          description:     document.getElementById('description')?.value.trim()
         };
 
         AdmissionModule.saveRecord(formData, currentEditId);
@@ -292,9 +342,9 @@ function initAdmissionStandalonePage() {
     });
   }
 
-  // Bind Filter Events
-  const triggers = ['tableSearchInput', 'filterClass', 'filterSource', 'filterStatus', 'filterFromDate', 'filterToDate'];
-  triggers.forEach(id => {
+  // Live filter/search event bindings
+  const filterIds = ['tableSearchInput', 'filterClass', 'filterSource', 'filterStatus', 'filterFromDate', 'filterToDate'];
+  filterIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('input', renderAdmissionTable);
@@ -302,16 +352,25 @@ function initAdmissionStandalonePage() {
     }
   });
 
+  // Search criteria button click
+  const btnSearch = document.getElementById('btnSearchCriteria');
+  if (btnSearch) {
+    btnSearch.addEventListener('click', e => {
+      e.preventDefault();
+      renderAdmissionTable();
+    });
+  }
+
+  // Reset filters
   const btnReset = document.getElementById('btnResetFilters');
   if (btnReset) {
     btnReset.addEventListener('click', e => {
       e.preventDefault();
-      ['tableSearchInput', 'filterClass', 'filterSource', 'filterStatus', 'filterFromDate', 'filterToDate'].forEach(id => {
+      filterIds.forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-          if (el.tagName === 'SELECT') el.selectedIndex = 0;
-          else el.value = '';
-        }
+        if (!el) return;
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
       });
       renderAdmissionTable();
     });
@@ -322,61 +381,63 @@ function initAdmissionStandalonePage() {
 
 function openAddModal() {
   const modal = document.getElementById('addModal');
-  const form = document.getElementById('admissionForm');
-  const modalTitle = document.querySelector('#addModal .modal-header h3');
-  const submitBtn = document.querySelector('#addModal button[type="submit"]');
+  const form  = document.getElementById('admissionForm');
+  const title = document.getElementById('admissionModalTitle');
+  const btn   = document.getElementById('admissionSubmitBtn');
 
   currentEditId = null;
   if (form) form.reset();
 
   const todayISO = new Date().toISOString().split('T')[0];
-  if (document.getElementById('enquiryDate')) document.getElementById('enquiryDate').value = todayISO;
-  if (document.getElementById('nextFollowUpDate')) document.getElementById('nextFollowUpDate').value = todayISO;
+  const enquiryDateEl    = document.getElementById('enquiryDate');
+  const followUpDateEl   = document.getElementById('nextFollowUpDate');
+  if (enquiryDateEl)  enquiryDateEl.value  = todayISO;
+  if (followUpDateEl) followUpDateEl.value = todayISO;
 
-  if (modalTitle) modalTitle.textContent = 'Add Admission Enquiry';
-  if (submitBtn) submitBtn.textContent = 'Save Enquiry';
+  if (title) title.textContent = 'Add Admission Enquiry';
+  if (btn)   btn.innerHTML     = '▣ &nbsp;Save Enquiry&nbsp;→';
 
-  if (modal) modal.classList.add('active');
+  if (modal) modal.classList.add('open');
 }
 
 function openEditModal(id) {
   const record = AdmissionModule.getById(id);
-  if (!record) return;
+  if (!record) { alert('Record not found.'); return; }
 
   currentEditId = id;
   const modal = document.getElementById('addModal');
-  const modalTitle = document.querySelector('#addModal .modal-header h3');
-  const submitBtn = document.querySelector('#addModal button[type="submit"]');
+  const title = document.getElementById('admissionModalTitle');
+  const btn   = document.getElementById('admissionSubmitBtn');
 
   const setVal = (fieldId, val) => {
     const el = document.getElementById(fieldId);
     if (el) el.value = val || '';
   };
 
-  setVal('studentName', record.studentName);
-  setVal('phoneNumber', record.phoneNumber);
-  setVal('emailAddress', record.emailAddress);
-  setVal('studentClass', record.studentClass || 'Select Class');
-  setVal('purpose', record.purpose || 'Select Purpose');
-  setVal('source', record.source || 'Select Source');
-  setVal('reference', record.reference);
-  setVal('enquiryDate', AdmissionModule.formatInputDate(record.enquiryDate));
+  setVal('studentName',     record.studentName);
+  setVal('phoneNumber',     record.phoneNumber);
+  setVal('emailAddress',    record.emailAddress);
+  setVal('studentClass',    record.studentClass || 'Select Class');
+  setVal('purpose',         record.purpose || 'Select Purpose');
+  setVal('source',          record.source || 'Select Source');
+  setVal('reference',       record.reference);
+  setVal('enquiryDate',     AdmissionModule.formatInputDate(record.enquiryDate));
   setVal('nextFollowUpDate', AdmissionModule.formatInputDate(record.nextFollowUpDate));
-  setVal('status', record.status || 'Active');
-  setVal('address', record.address);
-  setVal('description', record.description);
+  setVal('status',          record.status || 'Active');
+  setVal('address',         record.address);
+  setVal('description',     record.description);
 
-  if (modalTitle) modalTitle.textContent = 'Edit Admission Enquiry';
-  if (submitBtn) submitBtn.textContent = 'Update Enquiry';
+  if (title) title.textContent = 'Edit Admission Enquiry';
+  if (btn)   btn.innerHTML     = '▣ &nbsp;Update Enquiry&nbsp;→';
 
-  if (modal) modal.classList.add('active');
+  if (modal) modal.classList.add('open');
 }
 
 function closeAdmissionModal() {
   const modal = document.getElementById('addModal');
-  const form = document.getElementById('admissionForm');
-  if (modal) modal.classList.remove('active');
-  if (form) form.reset();
+  const form  = document.getElementById('admissionForm');
+  if (modal) modal.classList.remove('open');
+  if (form)  form.reset();
   currentEditId = null;
 }
 
@@ -388,29 +449,31 @@ function deleteEnquiry(id) {
 }
 
 function renderAdmissionTable() {
-  const tbody = document.querySelector('.table-wrap tbody');
+  const tbody     = document.querySelector('.table-wrap tbody');
   const pagerText = document.querySelector('.pager span');
   if (!tbody) return;
 
   const filters = {
-    query: document.getElementById('tableSearchInput')?.value || '',
+    query:        document.getElementById('tableSearchInput')?.value || '',
     studentClass: document.getElementById('filterClass')?.value || '',
-    source: document.getElementById('filterSource')?.value || '',
-    status: document.getElementById('filterStatus')?.value || ''
+    source:       document.getElementById('filterSource')?.value || '',
+    status:       document.getElementById('filterStatus')?.value || '',
+    fromDate:     document.getElementById('filterFromDate')?.value || '',
+    toDate:       document.getElementById('filterToDate')?.value || ''
   };
 
-  const records = AdmissionModule.getRecords(filters);
+  const records    = AdmissionModule.getRecords(filters);
   const totalCount = AdmissionModule.getRecords().length;
 
   tbody.innerHTML = AdmissionModule.renderRowsHtml(records);
 
   if (pagerText) {
-    pagerText.textContent = `Showing 1 to ${records.length} of ${totalCount} entries`;
+    pagerText.textContent = records.length === 0
+      ? 'No entries found'
+      : `Showing 1 to ${records.length} of ${totalCount} entries`;
   }
 
-  if (window.ExportUtils) {
-    ExportUtils.bindExportButtons();
-  }
+  if (window.ExportUtils) ExportUtils.bindExportButtons();
 }
 
 window.openAddModal = openAddModal;
