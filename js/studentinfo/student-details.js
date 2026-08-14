@@ -190,7 +190,356 @@
   }
 
   /* ------------------------------------------------------------
-     5. RENDER METHODS
+     5. HTML TEMPLATE BUILDER (For Dashboard & Standalone View)
+  ------------------------------------------------------------ */
+  function getTemplateHtml() {
+    return `
+      <div class="student-details-container">
+        <!-- ==================== 1. HEADER BANNER CARD ==================== -->
+        <section class="sd-banner-card">
+          <div class="sd-banner-left">
+            <div class="sd-icon-box">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3Z" fill="#f59e0b"/>
+                <path d="M5 13.18V17.5C5 19.99 8.13 22 12 22C15.87 22 19 19.99 19 17.5V13.18L12 17L5 13.18Z" fill="#f59e0b"/>
+                <circle cx="12" cy="11.5" r="3.2" fill="#ffffff"/>
+                <path d="M7 19C7 16.5 9.24 14.5 12 14.5C14.76 14.5 17 16.5 17 19" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="sd-title-box">
+              <h1 class="sd-title">Student Details</h1>
+              <p class="sd-subtitle">Search and manage student information efficiently.</p>
+            </div>
+          </div>
+
+          <div class="sd-banner-right">
+            <svg class="sd-banner-illustration" viewBox="0 0 280 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.45">
+                <circle cx="35" cy="22" r="3" fill="#cbd5e1"/>
+                <circle cx="28" cy="36" r="2.5" fill="#e2e8f0"/>
+                <circle cx="45" cy="45" r="2" fill="#cbd5e1"/>
+                <path d="M22 65C26 50 38 42 50 40C44 48 42 58 38 65" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                <path d="M34 52C28 48 24 40 28 34C34 38 36 46 34 52Z" fill="#e2e8f0"/>
+                <path d="M42 46C46 38 52 34 58 38C54 44 48 46 42 46Z" fill="#e2e8f0"/>
+              </g>
+              <g transform="translate(68, 8)">
+                <rect x="0" y="8" width="92" height="60" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.04))"/>
+                <rect x="0" y="8" width="92" height="60" rx="8" fill="#f8fafc"/>
+                <circle cx="26" cy="35" r="12" fill="#334155"/>
+                <circle cx="26" cy="30" r="5" fill="#ffffff"/>
+                <path d="M17 43C17 38.5 21 36.5 26 36.5C31 36.5 35 38.5 35 43" fill="#ffffff"/>
+                <rect x="46" y="24" width="34" height="4" rx="2" fill="#cbd5e1"/>
+                <rect x="46" y="32" width="26" height="3.5" rx="1.75" fill="#e2e8f0"/>
+                <rect x="46" y="39" width="30" height="3.5" rx="1.75" fill="#e2e8f0"/>
+                <rect x="46" y="46" width="18" height="3.5" rx="1.75" fill="#e2e8f0"/>
+              </g>
+              <g transform="translate(162, 4)">
+                <path d="M12 66H82C84.2 66 86 64.2 86 62V55C86 52.8 84.2 51 82 51H12C9.8 51 8 52.8 8 55V62C8 64.2 9.8 66 12 66Z" fill="#f59e0b"/>
+                <path d="M14 55H84V62H14V55Z" fill="#fbbf24"/>
+                <rect x="18" y="57" width="62" height="2" fill="#ffffff" opacity="0.6"/>
+                <path d="M16 51H78C80.2 51 82 49.2 82 47V41C82 38.8 80.2 37 78 37H16C13.8 37 12 38.8 12 41V47C12 49.2 13.8 51 16 51Z" fill="#3b82f6"/>
+                <rect x="18" y="40" width="58" height="8" fill="#60a5fa"/>
+                <rect x="22" y="43" width="48" height="2" fill="#ffffff" opacity="0.6"/>
+                <path d="M48 10L10 24L48 38L86 24L48 10Z" fill="#0f172a"/>
+                <path d="M48 13L16 24L48 35L80 24L48 13Z" fill="#1e293b"/>
+                <path d="M26 30V43C26 43 36 49 48 49C60 49 70 43 70 43V30L48 38L26 30Z" fill="#0f172a"/>
+                <path d="M48 24C48 24 74 27 74 36V45" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="74" cy="46" r="3.5" fill="#f59e0b"/>
+              </g>
+            </svg>
+          </div>
+        </section>
+
+        <!-- ==================== 2. SELECT CRITERIA CARD ==================== -->
+        <section class="sd-criteria-card">
+          <div class="sd-criteria-header">
+            <div class="sd-criteria-title">
+              <svg class="sd-criteria-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 5h14M5 10h10M8 15h4" stroke-linecap="round"/>
+              </svg>
+              <span>Select Criteria</span>
+            </div>
+            <div class="sd-dots-icon" aria-hidden="true">
+              <span class="sd-dot"></span><span class="sd-dot"></span><span class="sd-dot"></span>
+              <span class="sd-dot"></span><span class="sd-dot"></span><span class="sd-dot"></span>
+            </div>
+          </div>
+
+          <form id="criteriaForm" onsubmit="return false;">
+            <div class="sd-criteria-grid">
+              <div class="sd-form-group">
+                <label for="criteriaClass">Class <span class="sd-req">*</span></label>
+                <div class="sd-select-wrapper">
+                  <select id="criteriaClass" class="sd-select">
+                    <option value="">Select Class</option>
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                    <option value="Class 3">Class 3</option>
+                    <option value="Class 4">Class 4</option>
+                    <option value="Class 5">Class 5</option>
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                    <option value="Class 11">Class 11</option>
+                    <option value="Class 12">Class 12</option>
+                  </select>
+                  <svg class="sd-select-caret" viewBox="0 0 10 6" fill="none">
+                    <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="sd-form-group">
+                <label for="criteriaSection">Section</label>
+                <div class="sd-select-wrapper">
+                  <select id="criteriaSection" class="sd-select">
+                    <option value="">Select Section</option>
+                    <option value="A">Section A</option>
+                    <option value="B">Section B</option>
+                    <option value="C">Section C</option>
+                    <option value="D">Section D</option>
+                    <option value="E">Section E</option>
+                  </select>
+                  <svg class="sd-select-caret" viewBox="0 0 10 6" fill="none">
+                    <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="sd-form-group">
+                <label for="criteriaKeyword">Search By Keyword</label>
+                <input type="text" id="criteriaKeyword" class="sd-input" placeholder="Search by Student Name, Roll Number, Enroll Number, National Id, Local Id etc.">
+              </div>
+            </div>
+
+            <div class="sd-search-btn-wrap">
+              <button type="button" id="btnSearch" class="sd-btn-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Search</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ==================== 3. TABLE & VIEW CARD ==================== -->
+        <section class="sd-table-card">
+          <div class="sd-toolbar">
+            <div class="sd-view-tabs">
+              <button type="button" class="sd-tab active" id="tabListView" data-view="list">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M3 5h2M7 5h10M3 10h2M7 10h10M3 15h2M7 15h10" stroke-linecap="round"/>
+                </svg>
+                <span>List View</span>
+              </button>
+              <button type="button" class="sd-tab" id="tabDetailsView" data-view="details">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="3" width="5.5" height="5.5" rx="1.2"/>
+                  <rect x="11.5" y="3" width="5.5" height="5.5" rx="1.2"/>
+                  <rect x="3" y="11.5" width="5.5" height="5.5" rx="1.2"/>
+                  <rect x="11.5" y="11.5" width="5.5" height="5.5" rx="1.2"/>
+                </svg>
+                <span>Details View</span>
+              </button>
+            </div>
+
+            <div class="sd-toolbar-right">
+              <div class="sd-per-page-wrap">
+                <select id="sdPerPage" class="sd-per-page-select">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                </select>
+                <svg class="sd-per-page-caret" viewBox="0 0 10 6" fill="none">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+
+              <div class="sd-tool-btn-group">
+                <button type="button" class="sd-tool-btn" id="btnCopy" title="Copy to clipboard">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+                <button type="button" class="sd-tool-btn excel-btn" id="btnExcel" title="Export to Excel">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="8" y1="13" x2="16" y2="17"></line>
+                    <line x1="16" y1="13" x2="8" y2="17"></line>
+                  </svg>
+                </button>
+                <button type="button" class="sd-tool-btn pdf-btn" id="btnPdf" title="Export to PDF">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                    <line x1="9" y1="11" x2="15" y2="11"></line>
+                  </svg>
+                </button>
+                <button type="button" class="sd-tool-btn" id="btnPrint" title="Print Table">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                  </svg>
+                </button>
+                <button type="button" class="sd-tool-btn" id="btnColumns" title="Column Visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                    <line x1="15" y1="3" x2="15" y2="21"></line>
+                  </svg>
+                </button>
+                <button type="button" class="sd-tool-btn" id="btnToggleFilter" title="Toggle Filters">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="listViewContainer" class="sd-table-wrap">
+            <table class="sd-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-col="admissionNo">Admission No <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="studentName">Student Name <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="rollNo">Roll No. <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="class">Class <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="fatherName">Father Name <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="dob">Date Of Birth <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="gender">Gender <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="category">Category <span class="sd-sort-icon">⇅</span></th>
+                  <th class="sortable" data-col="mobileNumber">Mobile Number <span class="sd-sort-icon">⇅</span></th>
+                  <th style="text-align:center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody">
+              </tbody>
+            </table>
+          </div>
+
+          <div id="detailsViewContainer" class="sd-details-grid" style="display:none;">
+          </div>
+
+          <div class="sd-pagination-bar">
+            <span class="sd-page-info" id="paginationInfo">Showing 0 to 0 of 0 entries</span>
+            <div class="sd-page-controls" id="paginationControls">
+              <button class="sd-page-btn" id="btnPrevPage" disabled>‹</button>
+              <button class="sd-page-btn active">1</button>
+              <button class="sd-page-btn" id="btnNextPage" disabled>›</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- MODAL (if not already present in body) -->
+      <div class="modal" id="studentModal" aria-hidden="true">
+        <div class="modal-card">
+          <div class="modal-head">
+            <div>
+              <span class="modal-icon">✦</span>
+              <span>
+                <strong id="modalTitle">Add Student Details</strong>
+                <small id="modalSub">Fill in the student information below</small>
+              </span>
+            </div>
+            <button class="modal-close" id="btnCloseModal" aria-label="Close">×</button>
+          </div>
+          <form id="studentForm">
+            <div class="modal-body">
+              <div class="sd-modal-grid">
+                <div class="sd-modal-field">
+                  <label>Admission No *</label>
+                  <input type="text" id="mAdmissionNo" placeholder="e.g. ADM2026001" required>
+                </div>
+                <div class="sd-modal-field">
+                  <label>Roll Number *</label>
+                  <input type="text" id="mRollNo" placeholder="e.g. 101" required>
+                </div>
+                <div class="sd-modal-field full-span">
+                  <label>Student Full Name *</label>
+                  <input type="text" id="mStudentName" placeholder="Enter student full name" required>
+                </div>
+                <div class="sd-modal-field">
+                  <label>Class *</label>
+                  <select id="mClass" required>
+                    <option value="">Select Class</option>
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                    <option value="Class 3">Class 3</option>
+                    <option value="Class 4">Class 4</option>
+                    <option value="Class 5">Class 5</option>
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                    <option value="Class 11">Class 11</option>
+                    <option value="Class 12">Class 12</option>
+                  </select>
+                </div>
+                <div class="sd-modal-field">
+                  <label>Section *</label>
+                  <select id="mSection" required>
+                    <option value="">Select Section</option>
+                    <option value="A">Section A</option>
+                    <option value="B">Section B</option>
+                    <option value="C">Section C</option>
+                    <option value="D">Section D</option>
+                  </select>
+                </div>
+                <div class="sd-modal-field">
+                  <label>Father Name</label>
+                  <input type="text" id="mFatherName" placeholder="Enter father's name">
+                </div>
+                <div class="sd-modal-field">
+                  <label>Date Of Birth</label>
+                  <input type="date" id="mDob">
+                </div>
+                <div class="sd-modal-field">
+                  <label>Gender</label>
+                  <select id="mGender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="sd-modal-field">
+                  <label>Category</label>
+                  <select id="mCategory">
+                    <option value="General">General</option>
+                    <option value="OBC">OBC</option>
+                    <option value="SC">SC</option>
+                    <option value="ST">ST</option>
+                  </select>
+                </div>
+                <div class="sd-modal-field full-span">
+                  <label>Mobile Number</label>
+                  <input type="tel" id="mMobile" placeholder="e.g. 9876543210">
+                </div>
+              </div>
+            </div>
+            <div class="modal-foot">
+              <button type="button" class="btn ghost" id="btnCancelModal">Cancel</button>
+              <button type="submit" class="btn primary" id="btnSaveStudent">▣ &nbsp;Save Student&nbsp;→</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ------------------------------------------------------------
+     6. RENDER METHODS
   ------------------------------------------------------------ */
   function renderEmptyState() {
     return `
@@ -198,35 +547,23 @@
         <div class="sd-empty-graphic">
           <!-- Vector illustration matching Image 1: soft circular backdrop, folder, magnifying glass -->
           <svg width="170" height="120" viewBox="0 0 170 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Backdrop soft circle and dots -->
             <circle cx="85" cy="60" r="54" fill="#eef4ff"/>
             <circle cx="28" cy="78" r="3" fill="#cbd5e1" opacity="0.5"/>
             <circle cx="140" cy="38" r="2.5" fill="#cbd5e1" opacity="0.5"/>
             <path d="M22 45C24 35 34 30 42 32" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
             <path d="M148 75C146 85 136 90 128 88" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-
-            <!-- Soft decorative foliage/branch -->
             <path d="M30 85C35 70 50 68 55 75C48 82 40 86 30 85Z" fill="#dbeafe" opacity="0.7"/>
             <path d="M140 85C135 70 120 68 115 75C122 82 130 86 140 85Z" fill="#dbeafe" opacity="0.7"/>
-
-            <!-- Yellow Folder -->
             <path d="M52 46C52 43.8 53.8 42 56 42H74L80 48H114C116.2 48 118 49.8 118 52V88C118 90.2 116.2 92 114 92H56C53.8 92 52 90.2 52 88V46Z" fill="#f59e0b"/>
-            
-            <!-- Document inside folder -->
             <rect x="62" y="32" width="46" height="42" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
             <line x1="68" y1="40" x2="88" y2="40" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
             <line x1="68" y1="46" x2="100" y2="46" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
             <line x1="68" y1="52" x2="96" y2="52" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
             <line x1="68" y1="58" x2="85" y2="58" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
-
-            <!-- Folder Front Flap -->
             <path d="M50 56C50 53.8 51.8 52 54 52H116C118.2 52 120 53.8 120 56V88C120 90.2 118.2 92 116 92H54C51.8 92 50 90.2 50 88V56Z" fill="#fbbf24"/>
-
-            <!-- Magnifying Glass with Blue Rim -->
             <g transform="translate(86, 44)">
               <circle cx="16" cy="16" r="13" fill="#ffffff" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="3.5"/>
               <path d="M11 11L21 21" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
-              <!-- Handle -->
               <path d="M26 26L38 38" stroke="#1d4ed8" stroke-width="4.5" stroke-linecap="round"/>
               <path d="M26 26L38 38" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
             </g>
@@ -261,7 +598,6 @@
       return;
     }
 
-    // Calculate pagination slice
     const startIdx = (state.currentPage - 1) * state.perPage;
     const endIdx = startIdx + state.perPage;
     const pageRecords = records.slice(startIdx, endIdx);
@@ -414,7 +750,6 @@
 
     controls.innerHTML = btnsHtml;
 
-    // Bind page click events
     controls.querySelectorAll('[data-page]').forEach(btn => {
       btn.onclick = () => {
         state.currentPage = parseInt(btn.dataset.page, 10);
@@ -462,7 +797,7 @@
   }
 
   /* ------------------------------------------------------------
-     6. ROW & MODAL ACTION HANDLERS
+     7. ROW & MODAL ACTION HANDLERS
   ------------------------------------------------------------ */
   function bindEmptyStateActions() {
     const addLink = document.getElementById('emptyAddRecordLink');
@@ -472,7 +807,7 @@
   }
 
   function bindRowActions() {
-    document.querySelectorAll('[data-action]').forEach(btn => {
+    document.querySelectorAll('.sd-act-btn[data-action]').forEach(btn => {
       btn.onclick = e => {
         e.stopPropagation();
         const action = btn.dataset.action;
@@ -524,7 +859,6 @@
       saveBtn.innerHTML = '▣ &nbsp;Save Student&nbsp;→';
       form.reset();
 
-      // Suggest next admission number
       const all = getAllStudents();
       const nextNum = 'ADM2026' + String(all.length + 1).padStart(3, '0');
       document.getElementById('mAdmissionNo').value = nextNum;
@@ -543,7 +877,7 @@
   }
 
   /* ------------------------------------------------------------
-     7. EXPORT ACTIONS
+     8. EXPORT ACTIONS
   ------------------------------------------------------------ */
   function exportToCsv() {
     const records = getFilteredStudents();
@@ -601,7 +935,7 @@
   }
 
   /* ------------------------------------------------------------
-     8. ATTACH EVENT LISTENERS & BOOTSTRAP
+     9. ATTACH EVENT LISTENERS
   ------------------------------------------------------------ */
   function initEventListeners() {
     // Search Button
@@ -609,9 +943,9 @@
     if (btnSearch) {
       btnSearch.onclick = () => {
         state.hasSearched = true;
-        state.filterClass = document.getElementById('criteriaClass').value;
-        state.filterSection = document.getElementById('criteriaSection').value;
-        state.filterKeyword = document.getElementById('criteriaKeyword').value;
+        state.filterClass = document.getElementById('criteriaClass') ? document.getElementById('criteriaClass').value : '';
+        state.filterSection = document.getElementById('criteriaSection') ? document.getElementById('criteriaSection').value : '';
+        state.filterKeyword = document.getElementById('criteriaKeyword') ? document.getElementById('criteriaKeyword').value : '';
         state.currentPage = 1;
         renderCurrentView();
       };
@@ -708,7 +1042,7 @@
 
         saveStudent(studentData, state.editingStudentId);
         closeStudentModal();
-        state.hasSearched = true; // Show results after adding/editing
+        state.hasSearched = true;
         renderCurrentView();
       };
     }
@@ -728,13 +1062,25 @@
     }
   }
 
-  // App Init
-  function init() {
+  /* ------------------------------------------------------------
+     10. DUAL-MODE CONTAINER RENDERER
+  ------------------------------------------------------------ */
+  function renderInContainer(container) {
+    if (!container) return;
+    container.innerHTML = getTemplateHtml();
     initEventListeners();
     renderCurrentView();
   }
 
-  // Run on DOM ready
+  function init() {
+    // If standalone page has static structure
+    if (document.getElementById('criteriaForm')) {
+      initEventListeners();
+      renderCurrentView();
+    }
+  }
+
+  // Run on DOM ready if elements exist
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -747,6 +1093,8 @@
     saveStudent,
     deleteStudent,
     renderCurrentView,
-    openStudentModal
+    openStudentModal,
+    renderInContainer,
+    getTemplateHtml
   };
 })();

@@ -543,6 +543,14 @@ function render() {
     return;
   }
 
+  // Specialized Student Details view matching the target image
+  if (current === 'studentDetails') {
+    if (window.StudentDetailsModule && window.StudentDetailsModule.renderInContainer) {
+      StudentDetailsModule.renderInContainer($('#app'));
+      return;
+    }
+  }
+
   // Specialized Visitor List view matching the image
   if (current === 'visitor') {
     const records = window.VisitorModule ? VisitorModule.getRecords() : [];
